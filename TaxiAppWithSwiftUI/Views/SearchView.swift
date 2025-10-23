@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct SearchView: View {
+    
+    @State private var searchText = ""
+    
     var body: some View {
         VStack(spacing: 0) {
             
@@ -31,9 +34,10 @@ struct SearchView: View {
 extension SearchView {
     
     private var inputField: some View {
-        Capsule()
-            .fill(Color.mint)
-            .frame(height: 70)
+        TextField("場所を入力...", text: $searchText)
+            .padding()
+            .background(Color(.secondarySystemBackground))
+            .clipShape(Capsule())
             .padding()
     }
     
@@ -45,14 +49,44 @@ extension SearchView {
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
-                ForEach(0..<10) { _ in
-                    RoundedRectangle(cornerRadius: 18)
-                        .frame(height: 70)
+                ForEach(0..<20) { _ in
+                    searchResultsRow
                 }
 
             }
             .padding()
         }
         .background(Color(.secondarySystemBackground))
+    }
+    
+    private var searchResultsRow: some View {
+        HStack(spacing: 12) {
+            
+            // Icon
+            Image(systemName: "mappin.circle.fill")
+                .resizable()
+                .frame(width: 28, height: 28)
+                .foregroundStyle(.black)
+            
+            // Text
+            VStack(alignment: .leading) {
+                Text("Kアリーナ")
+                    .fontWeight(.bold)
+                    .foregroundStyle(.black)
+                Text("横浜市西区みなとみらい1-1")
+                    .font(.caption)
+                    .foregroundStyle(.gray)
+            }
+            
+            
+            Spacer()
+            
+            // Icon
+            Image(systemName: "chevron.right")
+                .foregroundStyle(.black)
+        }
+        .padding()
+        .background(.white)
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 }

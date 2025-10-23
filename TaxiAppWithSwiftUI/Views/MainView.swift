@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct MainView: View {
+    
+    @State private var showSearchView = false
+    
     var body: some View {
         VStack {
             // Map Area
@@ -15,7 +18,9 @@ struct MainView: View {
             
             // Information Area
             information
-            
+        }
+        .sheet(isPresented: $showSearchView) {
+            SearchView()
         }
     }
 }
@@ -34,8 +39,8 @@ extension MainView {
         VStack {
             // Starting Point
             HStack(spacing: 12) {
-                Circle()
-                    .frame(width: 30, height: 30)
+                Image(systemName: "figure.wave")
+                    .imageScale(.large)
                 VStack(alignment: .leading) {
                     HStack {
                         Text("乗車地")
@@ -59,8 +64,18 @@ extension MainView {
             Spacer()
             
             // Button
-            Capsule()
-                .frame(height: 60)
+            Button {
+                showSearchView.toggle()
+            } label: {
+                Text("目的地を指定する")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                    .background(.black)
+                    .clipShape(Capsule())
+            }
+
         }
         .padding(.horizontal)
         .frame(height: 240)

@@ -11,8 +11,9 @@ struct Destination: View {
     var body: some View {
         
         HStack(spacing: 12) {
-            Circle()
-                .frame(width: 30, height: 30)
+            Image(systemName: "mappin.and.ellipse")
+                .imageScale(.large)
+            
             VStack(alignment: .leading) {
                 Text("目的地")
                     .font(.subheadline)
