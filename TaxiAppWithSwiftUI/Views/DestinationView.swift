@@ -8,19 +8,39 @@
 import SwiftUI
 
 struct DestinationView: View {
+    
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
-        VStack {
-            // Map Area
-            map
-            
-            // Information Area
-            information
+            VStack {
+                // Map Area
+                map
+                
+                // Information Area
+                information
+            }
+            .navigationTitle("地点を確認・調整")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden()
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.headline)
+                    }
+
+                }
+            }
         }
-    }
 }
 
 #Preview {
-    DestinationView()
+    SearchView()
+//    NavigationStack {
+//        DestinationView()
+//    }
 }
 
 extension DestinationView {

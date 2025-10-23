@@ -9,20 +9,31 @@ import SwiftUI
 
 struct SearchView: View {
     
+    @Environment(\.dismiss) var dismiss
     @State private var searchText = ""
     
     var body: some View {
-        VStack(spacing: 0) {
-            
-            Divider()
-            
-            // Input Field
-            inputField
-            
-            Divider()
-            
-            // Results
-            searchResults
+        NavigationStack {
+            VStack(spacing: 0) {
+                Divider()
+                
+                // Input Field
+                inputField
+                
+                Divider()
+                
+                // Results
+                searchResults
+            }
+            .navigationTitle("目的地を検索")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement:  .topBarTrailing) {
+                    Button("キャンセル") {
+                        dismiss()
+                    }
+                }
+            }
         }
     }
 }
@@ -60,33 +71,38 @@ extension SearchView {
     }
     
     private var searchResultsRow: some View {
-        HStack(spacing: 12) {
-            
-            // Icon
-            Image(systemName: "mappin.circle.fill")
-                .resizable()
-                .frame(width: 28, height: 28)
-                .foregroundStyle(.black)
-            
-            // Text
-            VStack(alignment: .leading) {
-                Text("Kアリーナ")
-                    .fontWeight(.bold)
+        
+        NavigationLink {
+            DestinationView()
+        } label: {
+            HStack(spacing: 12) {
+                
+                // Icon
+                Image(systemName: "mappin.circle.fill")
+                    .resizable()
+                    .frame(width: 28, height: 28)
                     .foregroundStyle(.black)
-                Text("横浜市西区みなとみらい1-1")
-                    .font(.caption)
-                    .foregroundStyle(.gray)
+                
+                // Text
+                VStack(alignment: .leading) {
+                    Text("Kアリーナ")
+                        .fontWeight(.bold)
+                        .foregroundStyle(.black)
+                    Text("横浜市西区みなとみらい1-1")
+                        .font(.caption)
+                        .foregroundStyle(.gray)
+                }
+                
+                
+                Spacer()
+                
+                // Icon
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(.black)
             }
-            
-            
-            Spacer()
-            
-            // Icon
-            Image(systemName: "chevron.right")
-                .foregroundStyle(.black)
+            .padding()
+            .background(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
         }
-        .padding()
-        .background(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 }
