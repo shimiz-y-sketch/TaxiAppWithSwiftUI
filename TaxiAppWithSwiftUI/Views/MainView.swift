@@ -6,10 +6,22 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct MainView: View {
     
+    let mainViewModel = MainViewModel()
+    
     @State private var showSearchView = false
+    // 書記画面表示用のバインディング変数（固定値）
+//    @State private var cameraPosition: MapCameraPosition = .region(
+//        MKCoordinateRegion(
+//            center: .init(latitude: 35.452183, longitude: 139.632419),
+//            latitudinalMeters: 10000,
+//            longitudinalMeters: 10000)
+//        )
+    
+    @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     
     var body: some View {
         VStack {
@@ -18,9 +30,6 @@ struct MainView: View {
             
             // Information Area
             information
-        }
-        .sheet(isPresented: $showSearchView) {
-            SearchView()
         }
     }
 }
@@ -32,7 +41,12 @@ struct MainView: View {
 extension MainView {
     
     private var map: some View {
-        Color.gray
+        Map(position: $cameraPosition) {
+            UserAnnotation()
+        }
+        .onAppear {
+            CLLocationManager().requestWhenInUseAuthorization()
+        }
     }
     
     private var information: some View {
@@ -41,6 +55,8 @@ extension MainView {
             HStack(spacing: 12) {
                 Image(systemName: "figure.wave")
                     .imageScale(.large)
+                    .foregroundStyle(.main)
+                
                 VStack(alignment: .leading) {
                     HStack {
                         Text("乗車地")
@@ -50,7 +66,7 @@ extension MainView {
                             .foregroundStyle(.gray)
                     }
                     
-                    Text("横浜市西区みなとみらい1-1")
+                    Text(mainViewModel.strPointName)
                         .font(.headline)
                     
                 }
@@ -60,6 +76,17 @@ extension MainView {
             
             // Destination
             Destination()
+                .overlay(alignment: .topLeading)  {
+                    VStack {
+                        Image(systemName: "arrowtriangle.down.fill")
+                        Image(systemName: "arrowtriangle.down.fill").opacity(0.66)
+                        Image(systemName: "arrowtriangle.down.fill").opacity(0.33)
+                    }
+                    .font(.caption2)
+                    .foregroundStyle(.main)
+                    .offset(x: 8, y: -16)
+                    
+                }
             
             Spacer()
             
@@ -68,12 +95,10 @@ extension MainView {
                 showSearchView.toggle()
             } label: {
                 Text("目的地を指定する")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .fontWeight(.bold)
-                    .foregroundStyle(.white)
-                    .background(.black)
-                    .clipShape(Capsule())
+                    .modifier(BasicButton())
+            }
+            .sheet(isPresented: $showSearchView) {
+                SearchView()
             }
 
         }
