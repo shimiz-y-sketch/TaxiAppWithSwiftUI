@@ -81,7 +81,7 @@ extension SearchView {
                 Image(systemName: "mappin.circle.fill")
                     .resizable()
                     .frame(width: 28, height: 28)
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.main)
                 
                 // Text
                 VStack(alignment: .leading) {
@@ -98,7 +98,7 @@ extension SearchView {
                 
                 // Icon
                 Image(systemName: "chevron.right")
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.main)
             }
             .padding()
             .background(.white)

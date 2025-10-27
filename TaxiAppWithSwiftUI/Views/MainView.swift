@@ -10,7 +10,7 @@ import MapKit
 
 struct MainView: View {
     
-    let mainViewModel = MainViewModel()
+    @ObservedObject var mainViewModel = MainViewModel()
     
     @State private var showSearchView = false
     // 書記画面表示用のバインディング変数（固定値）

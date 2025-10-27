@@ -67,12 +67,7 @@ extension DestinationView {
                 print("ボタンがタップされました")
             } label: {
                 Text("ここに行く")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .fontWeight(.bold)
-                    .foregroundStyle(.white)
-                    .background(.black)
-                    .clipShape(Capsule())
+                    .modifier(BasicButton())
             }
 
             
