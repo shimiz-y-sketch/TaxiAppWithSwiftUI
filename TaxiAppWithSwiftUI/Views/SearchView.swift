@@ -54,7 +54,7 @@ extension SearchView {
             .clipShape(Capsule())
             .padding()
             .onSubmit {
-                guard let center else { return }
+                guard !searchText.isEmpty, let center else { return }
                 
                 Task {
                     await searchViewModel.searchPlace(searchText: searchText, center: center, meters: 1000)
