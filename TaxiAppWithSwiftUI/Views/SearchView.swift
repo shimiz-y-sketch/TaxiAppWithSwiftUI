@@ -13,6 +13,7 @@ struct SearchView: View {
     @ObservedObject var searchViewModel = SearchViewModel()
     @Environment(\.dismiss) var dismiss
     @State private var searchText = ""
+    let center: CLLocationCoordinate2D?
     
     var body: some View {
         NavigationStack {
@@ -41,7 +42,7 @@ struct SearchView: View {
 }
 
 #Preview {
-    SearchView()
+    SearchView(center: .init(latitude: 35.452183, longitude: 139.632419))
 }
 
 extension SearchView {
@@ -52,6 +53,13 @@ extension SearchView {
             .background(Color(.secondarySystemBackground))
             .clipShape(Capsule())
             .padding()
+            .onSubmit {
+                guard let center else { return }
+                
+                Task {
+                    await searchViewModel.searchPlace(searchText: searchText, center: center, meters: 1000)
+                }
+            }
     }
     
     private var searchResults: some View {
@@ -90,6 +98,7 @@ extension SearchView {
                     Text(mapItem.name ?? "")
                         .fontWeight(.bold)
                         .foregroundStyle(.black)
+                        .multilineTextAlignment(.leading)
                     Text(searchViewModel.getAddressString(placemark: mapItem.placemark))
                         .font(.caption)
                         .foregroundStyle(.gray)

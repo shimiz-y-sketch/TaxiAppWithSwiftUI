@@ -79,7 +79,7 @@ extension MainView {
                             .foregroundStyle(.gray)
                     }
                     
-                    Text(mainViewModel.strPointName)
+                    Text(mainViewModel.ridePointName)
                         .font(.headline)
                     
                 }
@@ -116,7 +116,7 @@ extension MainView {
                 mainViewModel.userState = .setRidePoint
                 print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
             } content: {
-                SearchView()
+                SearchView(center: mainViewModel.ridePointCoordinates)
             }
 
 

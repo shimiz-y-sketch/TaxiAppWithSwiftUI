@@ -18,12 +18,22 @@ class MainViewModel: ObservableObject {
     
     var userState: UserState = .setRidePoint
     
-    @Published var strPointName = ""
+    @Published var ridePointName = ""
+    var ridePointCoordinates: CLLocationCoordinate2D?
       
+    /**
+     緯度・経度情報に基づいて逆ジオコーディングを実行し、住所文字列を取得してプロパティを更新
+
+     - Parameters:
+        - latitude: 検索する地点の緯度。
+        - longitude: 検索する地点の経度。
+     */
     func getLocationAddress(latitude: CLLocationDegrees, longitude: CLLocationDegrees) async {
 
         let geocoder = CLGeocoder()
         let location = CLLocation(latitude: latitude, longitude: longitude)
+        
+        ridePointCoordinates = location.coordinate
         
         do {
             let placemarks = try await geocoder.reverseGeocodeLocation(location)
@@ -36,7 +46,7 @@ class MainViewModel: ObservableObject {
             let throughfare = placemark.thoroughfare ?? ""
             let subThroughfare = placemark.subThoroughfare ?? ""
             
-            strPointName = "\(administrativeArea)\(locality)\(subLocality)\(throughfare)\(subThroughfare)"
+            ridePointName = "\(administrativeArea)\(locality)\(subLocality)\(throughfare)\(subThroughfare)"
             
         } catch {
             print("位置情報の処理に失敗：\(error.localizedDescription)")

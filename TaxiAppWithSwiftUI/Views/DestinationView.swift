@@ -37,10 +37,10 @@ struct DestinationView: View {
 }
 
 #Preview {
-    SearchView()
-//    NavigationStack {
-//        DestinationView()
-//    }
+//    SearchView()
+    NavigationStack {
+        DestinationView()
+    }
 }
 
 extension DestinationView {
