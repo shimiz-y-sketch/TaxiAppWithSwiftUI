@@ -7,8 +7,11 @@
 
 import Foundation
 import MapKit
+import Combine
 
-class SearchViewModel {
+class SearchViewModel: ObservableObject {
+    
+    @Published var searchResults: [MKMapItem] = []
     
     init() {
         Task {
@@ -25,13 +28,25 @@ class SearchViewModel {
         do {
             
             let results = try await MKLocalSearch(request: request).start()
-            print("検索結果：\(results)")
+            searchResults = results.mapItems
             
         } catch {
             
             print("施設検索に失敗しました：\(error.localizedDescription)")
             
         }
+    }
+    
+    func getAddressString(placemark: MKPlacemark) -> String {
+        
+        let administrativeArea = placemark.administrativeArea ?? ""
+        let locality = placemark.locality ?? ""
+        let subLocality = placemark.subLocality ?? ""
+        let throughfare = placemark.thoroughfare ?? ""
+        let subThroughfare = placemark.subThoroughfare ?? ""
+        
+        return "\(administrativeArea)\(locality)\(subLocality)\(throughfare)\(subThroughfare)"
+        
     }
 }
 

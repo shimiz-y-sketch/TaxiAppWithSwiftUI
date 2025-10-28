@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct SearchView: View {
     
-    let searchViewModel = SearchViewModel()
+    @ObservedObject var searchViewModel = SearchViewModel()
     @Environment(\.dismiss) var dismiss
     @State private var searchText = ""
     
@@ -61,8 +62,8 @@ extension SearchView {
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
-                ForEach(0..<20) { _ in
-                    searchResultsRow
+                ForEach(searchViewModel.searchResults, id: \.self) { mapItem in
+                    searchResultsRow(mapItem: mapItem)
                 }
 
             }
@@ -71,7 +72,7 @@ extension SearchView {
         .background(Color(.secondarySystemBackground))
     }
     
-    private var searchResultsRow: some View {
+    private func searchResultsRow(mapItem: MKMapItem) -> some View {
         
         NavigationLink {
             DestinationView()
@@ -86,12 +87,13 @@ extension SearchView {
                 
                 // Text
                 VStack(alignment: .leading) {
-                    Text("Kアリーナ")
+                    Text(mapItem.name ?? "")
                         .fontWeight(.bold)
                         .foregroundStyle(.black)
-                    Text("横浜市西区みなとみらい1-1")
+                    Text(searchViewModel.getAddressString(placemark: mapItem.placemark))
                         .font(.caption)
                         .foregroundStyle(.gray)
+                        .multilineTextAlignment(.leading)
                 }
                 
                 
