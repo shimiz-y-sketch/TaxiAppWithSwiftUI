@@ -6,10 +6,13 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct DestinationView: View {
     
+    let placemark: MKPlacemark
     @Environment(\.dismiss) var dismiss
+    @State private var cameraPosition: MapCameraPosition = .automatic
     
     var body: some View {
             VStack {
@@ -37,16 +40,20 @@ struct DestinationView: View {
 }
 
 #Preview {
-//    SearchView()
-    NavigationStack {
-        DestinationView()
-    }
+        DestinationView(placemark: .init(coordinate: .init(latitude: 35.452183, longitude: 139.632419)))
+        // 参考：省略なしの記法は以下
+        //DestinationView.init(placemark: MKPlacemark.init(coordinate: CLLocationCoordinate2D.init(latitude: 35.452183, longitude: 139.632419)))
 }
 
 extension DestinationView {
     
     private var map: some View {
-        Color.mint
+        Map(position: $cameraPosition) {
+            
+        }
+        .onAppear {
+            cameraPosition = .camera(MapCamera(centerCoordinate: placemark.coordinate, distance: 1000))
+        }
     }
     
     private var information: some View {
