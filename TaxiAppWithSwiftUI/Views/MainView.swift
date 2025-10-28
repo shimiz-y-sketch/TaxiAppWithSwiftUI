@@ -52,9 +52,12 @@ extension MainView {
             CLLocationManager().requestWhenInUseAuthorization()
         }
         .onMapCameraChange(frequency: .onEnd) { context in
-            let center = context.region.center
-            Task {
-                await mainViewModel.getLocationAddress(latitude: center.latitude, longitude: center.longitude)
+            if mainViewModel.userState == .setRidePoint {
+                let center = context.region.center
+                Task {
+                    await mainViewModel.getLocationAddress(latitude: center.latitude, longitude: center.longitude)
+                    print("DEBUG: 逆ジオエンコーティング実行\nUserStateは → \(mainViewModel.userState)")  // デバッグ用
+                }
             }
         }
     }
@@ -102,14 +105,20 @@ extension MainView {
             
             // Button
             Button {
+                mainViewModel.userState = .searchLocation
+                print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
                 showSearchView.toggle()
             } label: {
                 Text("目的地を指定する")
                     .modifier(BasicButton())
             }
             .sheet(isPresented: $showSearchView) {
+                mainViewModel.userState = .setRidePoint
+                print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
+            } content: {
                 SearchView()
             }
+
 
         }
         .padding(.horizontal)

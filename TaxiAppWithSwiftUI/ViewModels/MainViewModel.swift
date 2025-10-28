@@ -9,7 +9,14 @@ import Foundation
 import MapKit
 import Combine
 
+enum UserState {
+    case setRidePoint
+    case searchLocation
+}
+
 class MainViewModel: ObservableObject {
+    
+    var userState: UserState = .setRidePoint
     
     @Published var strPointName = ""
       
