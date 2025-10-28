@@ -12,14 +12,7 @@ import Combine
 class MainViewModel: ObservableObject {
     
     @Published var strPointName = ""
-    
-    init () {
-
-        Task {
-            await getLocationAddress(latitude: 34.6894362, longitude: 135.4963352)
-        }
-    }
-    
+      
     func getLocationAddress(latitude: CLLocationDegrees, longitude: CLLocationDegrees) async {
 
         let geocoder = CLGeocoder()

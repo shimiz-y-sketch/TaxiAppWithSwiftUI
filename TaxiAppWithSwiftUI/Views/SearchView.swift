@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SearchView: View {
     
+    let searchViewModel = SearchViewModel()
     @Environment(\.dismiss) var dismiss
     @State private var searchText = ""
     

@@ -44,8 +44,18 @@ extension MainView {
         Map(position: $cameraPosition) {
             UserAnnotation()
         }
+        .overlay {
+            CenterPin()
+        }
+        
         .onAppear {
             CLLocationManager().requestWhenInUseAuthorization()
+        }
+        .onMapCameraChange(frequency: .onEnd) { context in
+            let center = context.region.center
+            Task {
+                await mainViewModel.getLocationAddress(latitude: center.latitude, longitude: center.longitude)
+            }
         }
     }
     
