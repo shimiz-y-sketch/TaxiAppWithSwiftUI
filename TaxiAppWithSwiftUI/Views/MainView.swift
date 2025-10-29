@@ -12,7 +12,6 @@ struct MainView: View {
     
     @ObservedObject var mainViewModel = MainViewModel()
     
-    @State private var showSearchView = false
     // 書記画面表示用のバインディング変数（固定値）
 //    @State private var cameraPosition: MapCameraPosition = .region(
 //        MKCoordinateRegion(
@@ -105,18 +104,29 @@ extension MainView {
             
             // Button
             Button {
+                // 1. ユーザーの状態を「目的地検索中」に切り替え
                 mainViewModel.userState = .searchLocation
                 print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
-                showSearchView.toggle()
+                // 2. State変数を切り替えて、.sheet モディファイアによる画面遷移をトリガー
+                mainViewModel.showSearchView.toggle()
             } label: {
                 Text("目的地を指定する")
                     .modifier(BasicButton())
             }
-            .sheet(isPresented: $showSearchView) {
+            // モーダル画面（SearchView）の表示設定
+            // $showSearchViewはモーダルの表示／非表示を管理するBinding<Bool>
+            .sheet(isPresented: $mainViewModel.showSearchView) {
+                // 画面（SearchView）が閉じられたときに実行されるコールバック処理
+                
+                // 3. ユーザーの状態を「乗車地設定中」に戻す
                 mainViewModel.userState = .setRidePoint
                 print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
             } content: {
+                // 4. モーダルとして表示するView（検索画面）の定義
+                
+                // 現在の乗車地座標を検索の中心として渡す
                 SearchView(center: mainViewModel.ridePointCoordinates)
+                    // SearchViewとその子孫ViewでMainViewModelを利用できるように環境に登録
                     .environmentObject(mainViewModel)
             }
 

@@ -18,6 +18,8 @@ class MainViewModel: ObservableObject {
     
     var userState: UserState = .setRidePoint
     
+    @Published var showSearchView = false
+    
     @Published var ridePointAddress = ""
     var ridePointCoordinates: CLLocationCoordinate2D?
     

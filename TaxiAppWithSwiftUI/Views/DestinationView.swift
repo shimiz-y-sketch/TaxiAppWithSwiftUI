@@ -80,7 +80,7 @@ extension DestinationView {
             
             // Button
             Button {
-                print("ボタンがタップされました")
+                mainViewModel.showSearchView = false
             } label: {
                 Text("ここに行く")
                     .modifier(BasicButton())
