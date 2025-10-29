@@ -54,6 +54,9 @@ extension DestinationView {
         Map(position: $cameraPosition) {
             
         }
+        .overlay {
+            CenterPin()
+        }
         .onAppear {
             cameraPosition = .camera(MapCamera(centerCoordinate: placemark.coordinate, distance: 1000))
         }
