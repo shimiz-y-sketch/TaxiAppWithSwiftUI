@@ -18,15 +18,22 @@ class MainViewModel: ObservableObject {
     
     var userState: UserState = .setRidePoint
     
-    @Published var ridePointName = ""
+    @Published var ridePointAddress = ""
     var ridePointCoordinates: CLLocationCoordinate2D?
     
+    @Published var destinationAddress = ""
+    var destinationCoordinates: CLLocationCoordinate2D?
+    
     func setRideLocation(latitude: CLLocationDegrees, longitude: CLLocationDegrees) async {
-        
         let location = CLLocation(latitude: latitude, longitude: longitude)
         ridePointCoordinates = location.coordinate
-        ridePointName = await getLocationAddress(location: location)
-        
+        ridePointAddress = await getLocationAddress(location: location)
+    }
+    
+    func setDestination(latitude: CLLocationDegrees, longitude: CLLocationDegrees) async {
+        let location = CLLocation(latitude: latitude, longitude: longitude)
+        destinationCoordinates = location.coordinate
+        destinationAddress = await getLocationAddress(location: location)
     }
       
     /**

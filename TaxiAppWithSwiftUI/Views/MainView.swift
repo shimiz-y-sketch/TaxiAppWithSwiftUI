@@ -79,7 +79,7 @@ extension MainView {
                             .foregroundStyle(.gray)
                     }
                     
-                    Text(mainViewModel.ridePointName)
+                    Text(mainViewModel.ridePointAddress)
                         .font(.headline)
                     
                 }
@@ -88,7 +88,7 @@ extension MainView {
             .padding(.vertical)
             
             // Destination
-            Destination()
+            Destination(address: "設定してください")
                 .overlay(alignment: .topLeading)  {
                     VStack {
                         Image(systemName: "arrowtriangle.down.fill")
@@ -117,6 +117,7 @@ extension MainView {
                 print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
             } content: {
                 SearchView(center: mainViewModel.ridePointCoordinates)
+                    .environmentObject(mainViewModel)
             }
 
 

@@ -11,6 +11,7 @@ import MapKit
 struct DestinationView: View {
     
     let placemark: MKPlacemark
+    @EnvironmentObject var mainViewModel: MainViewModel
     @Environment(\.dismiss) var dismiss
     @State private var cameraPosition: MapCameraPosition = .automatic
     
@@ -41,8 +42,10 @@ struct DestinationView: View {
 
 #Preview {
         DestinationView(placemark: .init(coordinate: .init(latitude: 35.452183, longitude: 139.632419)))
+            .environmentObject(MainViewModel())
         // 参考：省略なしの記法は以下
         //DestinationView.init(placemark: MKPlacemark.init(coordinate: CLLocationCoordinate2D.init(latitude: 35.452183, longitude: 139.632419)))
+    
 }
 
 extension DestinationView {
@@ -55,7 +58,10 @@ extension DestinationView {
             cameraPosition = .camera(MapCamera(centerCoordinate: placemark.coordinate, distance: 1000))
         }
         .onMapCameraChange(frequency: .onEnd) { context in
-
+            let center = context.region.center
+            Task {
+                await mainViewModel.setDestination(latitude: center.latitude, longitude: center.longitude)
+            }
         }
     }
     
@@ -70,7 +76,7 @@ extension DestinationView {
                     .foregroundStyle(.gray)
             }
             // Destination
-            Destination()
+            Destination(address: mainViewModel.destinationAddress)
             
             // Button
             Button {
