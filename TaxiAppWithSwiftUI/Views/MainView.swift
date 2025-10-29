@@ -55,7 +55,7 @@ extension MainView {
             if mainViewModel.userState == .setRidePoint {
                 let center = context.region.center
                 Task {
-                    await mainViewModel.getLocationAddress(latitude: center.latitude, longitude: center.longitude)
+                    await mainViewModel.setRideLocation(latitude: center.latitude, longitude: center.longitude)
                     print("DEBUG: 逆ジオエンコーティング実行\nUserStateは → \(mainViewModel.userState)")  // デバッグ用
                 }
             }

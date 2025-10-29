@@ -54,6 +54,9 @@ extension DestinationView {
         .onAppear {
             cameraPosition = .camera(MapCamera(centerCoordinate: placemark.coordinate, distance: 1000))
         }
+        .onMapCameraChange(frequency: .onEnd) { context in
+
+        }
     }
     
     private var information: some View {
