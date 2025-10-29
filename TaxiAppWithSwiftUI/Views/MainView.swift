@@ -42,6 +42,11 @@ extension MainView {
     private var map: some View {
         Map(position: $cameraPosition) {
             UserAnnotation()
+            
+            if let polyline = mainViewModel.route?.polyline {
+                MapPolyline(polyline)
+                    .stroke(.blue, lineWidth: 7)
+            }
         }
         .overlay {
             CenterPin()

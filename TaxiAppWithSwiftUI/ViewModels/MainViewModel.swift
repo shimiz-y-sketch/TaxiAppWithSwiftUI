@@ -26,6 +26,8 @@ class MainViewModel: ObservableObject {
     @Published var destinationAddress = ""
     var destinationCoordinates: CLLocationCoordinate2D?
     
+    @Published var route: MKRoute?
+    
     func setRideLocation(latitude: CLLocationDegrees, longitude: CLLocationDegrees) async {
         let location = CLLocation(latitude: latitude, longitude: longitude)
         ridePointCoordinates = location.coordinate
@@ -65,6 +67,29 @@ class MainViewModel: ObservableObject {
         } catch {
             print("位置情報の処理に失敗：\(error.localizedDescription)")
             return ""
+        }
+    }
+    
+    func fetchRoute() async {
+        // 1. 値のアンラップ
+        guard let ridePointCoordinates = ridePointCoordinates else { return }
+        guard let destinationCoordinates = destinationCoordinates else { return }
+
+        // 2. MKPlacemark を明示的に生成
+        let sourcePlacemark = MKPlacemark(coordinate: ridePointCoordinates)
+        let destinationPlacemark = MKPlacemark(coordinate: destinationCoordinates)
+
+        let request = MKDirections.Request()
+
+        // 3. MKMapItem を明示的に生成し、代入
+        request.source = MKMapItem(placemark: sourcePlacemark)  //乗車地（スタート）の設定
+        request.destination = MKMapItem(placemark: destinationPlacemark)  //目的地（ゴール）の設定
+  
+        do {
+            let directions = try await MKDirections(request: request).calculate()
+            route = directions.routes.first
+        } catch {
+            print("ルートの生成に失敗しました： \(error.localizedDescription)")
         }
     }
 }

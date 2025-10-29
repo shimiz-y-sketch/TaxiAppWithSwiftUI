@@ -81,6 +81,11 @@ extension DestinationView {
             // Button
             Button {
                 mainViewModel.showSearchView = false
+
+                Task {
+                    await mainViewModel.fetchRoute()
+                }
+                
             } label: {
                 Text("ここに行く")
                     .modifier(BasicButton())
