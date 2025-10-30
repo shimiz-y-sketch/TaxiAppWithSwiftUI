@@ -13,11 +13,17 @@ import SwiftUI
 enum UserState {
     case setRidePoint
     case searchLocation
+    case setDestination
+    case confirming
 }
 
 class MainViewModel: ObservableObject {
     
-    var userState: UserState = .setRidePoint
+    var userState: UserState = .setRidePoint {
+        didSet {
+            print("DEBUG: UserState is \(userState)")
+        }
+    }
     
     @Published var showSearchView = false
     

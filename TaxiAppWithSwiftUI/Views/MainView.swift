@@ -47,7 +47,9 @@ extension MainView {
             }
         }
         .overlay {
-            CenterPin()
+            if mainViewModel.userState == .setRidePoint {
+                CenterPin()
+            }
         }
         
         .onAppear {
@@ -121,8 +123,10 @@ extension MainView {
             .sheet(isPresented: $mainViewModel.showSearchView) {
                 // 画面（SearchView）が閉じられたときに実行されるコールバック処理
                 
-                // 3. ユーザーの状態を「乗車地設定中」に戻す
-                mainViewModel.userState = .setRidePoint
+                // 3. ユーザーの状態を「乗車地設定中」に戻す(← ルート確認画面じゃなければ）
+                if mainViewModel.userState != .confirming {
+                    mainViewModel.userState = .setRidePoint
+                }
                 print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
             } content: {
                 // 4. モーダルとして表示するView（検索画面）の定義
