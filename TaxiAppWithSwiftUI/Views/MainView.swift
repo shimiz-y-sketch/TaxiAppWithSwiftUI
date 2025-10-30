@@ -92,7 +92,7 @@ extension MainView {
             .padding(.vertical)
             
             // Destination
-            Destination(address: "設定してください")
+            Destination(address: mainViewModel.destinationAddress.isEmpty ? nil : mainViewModel.destinationAddress)
                 .overlay(alignment: .topLeading)  {
                     VStack {
                         Image(systemName: "arrowtriangle.down.fill")

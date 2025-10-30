@@ -9,7 +9,7 @@ import SwiftUI
 
 struct Destination: View {
     
-    let address: String
+    var address: String?
     
     var body: some View {
         
@@ -20,12 +20,12 @@ struct Destination: View {
             VStack(alignment: .leading) {
                 Text("目的地")
                     .font(.subheadline)
-                Text(address)
+                Text(address ?? "指定してください")
                     .font(.headline)
             }
             Spacer()
         }
-        .foregroundStyle(.secondary)
+        .foregroundStyle(address == nil ? .secondary : .primary)
         .padding()
         .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 18))
@@ -34,5 +34,5 @@ struct Destination: View {
 }
 
 #Preview {
-    Destination(address: "指定してください")
+    Destination()
 }
