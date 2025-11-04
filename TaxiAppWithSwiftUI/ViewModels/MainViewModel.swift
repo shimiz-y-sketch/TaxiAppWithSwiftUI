@@ -64,14 +64,7 @@ class MainViewModel: ObservableObject {
             let placemarks = try await geocoder.reverseGeocodeLocation(location)
             
             guard let placemark = placemarks.first else { return "" }
-            
-            let administrativeArea = placemark.administrativeArea ?? ""
-            let locality = placemark.locality ?? ""
-            let subLocality = placemark.subLocality ?? ""
-            let throughfare = placemark.thoroughfare ?? ""
-            let subThroughfare = placemark.subThoroughfare ?? ""
-            
-            return "\(administrativeArea)\(locality)\(subLocality)\(throughfare)\(subThroughfare)"
+            return MKPlacemark(placemark: placemark).addressString
             
         } catch {
             print("位置情報の処理に失敗：\(error.localizedDescription)")

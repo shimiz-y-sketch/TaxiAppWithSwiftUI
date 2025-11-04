@@ -44,18 +44,4 @@ class SearchViewModel: ObservableObject {
             
         }
     }
-    
-    func getAddressString(placemark: MKPlacemark) -> String {
-        
-        let administrativeArea = placemark.administrativeArea ?? ""
-        let locality = placemark.locality ?? ""
-        let subLocality = placemark.subLocality ?? ""
-        let throughfare = placemark.thoroughfare ?? ""
-        let subThroughfare = placemark.subThoroughfare ?? ""
-        
-        return "\(administrativeArea)\(locality)\(subLocality)\(throughfare)\(subThroughfare)"
-        
-    }
 }
-
-
