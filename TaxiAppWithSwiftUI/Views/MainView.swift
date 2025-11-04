@@ -39,8 +39,18 @@ extension MainView {
     
     private var map: some View {
         Map(position: $mainViewModel.mainCamera) {
+            
+            // User's current location
             UserAnnotation()
             
+            // Ride point and Destination
+            if let ridePoint = mainViewModel.ridePointCoordinates,
+               let destination = mainViewModel.destinationCoordinates {
+                Marker("乗車地", coordinate: ridePoint).tint(.blue)
+                Marker("目的地", coordinate: destination).tint(.blue)
+            }
+            
+            // Route Polyline
             if let polyline = mainViewModel.route?.polyline {
                 MapPolyline(polyline)
                     .stroke(.blue, lineWidth: 7)
