@@ -121,4 +121,23 @@ class MainViewModel: ObservableObject {
         // 5. 調整済みの矩形（ルート全体と余白を含む領域）に合わせてカメラ位置を設定
         mainCamera = .rect(rect)
     }
+    
+    func reset() {
+        // ユーザーの状態を「乗車地設定中」に戻す
+        userState = .setRidePoint
+        
+        // 乗車地関連の情報をリセット
+        ridePointAddress = ""       // 乗車地住所をクリア
+        ridePointCoordinates = nil  // 乗車地座標をクリア
+        
+        // 目的地関連の情報をリセット
+        destinationAddress = ""     // 目的地住所をクリア
+        destinationCoordinates = nil// 目的地座標をクリア
+        
+        // ルート情報をクリア
+        route = nil                 // 経路情報をクリア
+        
+        // カメラ位置をユーザーの現在地（または自動）にリセット
+        mainCamera = .userLocation(fallback: .automatic)
+    }
 }

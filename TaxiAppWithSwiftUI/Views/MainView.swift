@@ -122,7 +122,7 @@ extension MainView {
                 
                 HStack(spacing: 16) {
                     Button {
-                        
+                        mainViewModel.reset()
                     } label: {
                         Text("キャンセル")
                             .modifier(BasicButton(isPrimary: false))
