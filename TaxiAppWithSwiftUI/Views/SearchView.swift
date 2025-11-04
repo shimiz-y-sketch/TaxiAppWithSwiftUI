@@ -10,7 +10,7 @@ import MapKit
 
 struct SearchView: View {
     
-    @ObservedObject var searchViewModel = SearchViewModel()
+    @StateObject var searchViewModel = SearchViewModel()
     @Environment(\.dismiss) var dismiss
     @State private var searchText = ""
     let center: CLLocationCoordinate2D?

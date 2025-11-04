@@ -10,7 +10,7 @@ import MapKit
 
 struct MainView: View {
     
-    @ObservedObject var mainViewModel = MainViewModel()
+    @StateObject var mainViewModel = MainViewModel()
     
     // 書記画面表示用のバインディング変数（固定値）
 //    @State private var cameraPosition: MapCameraPosition = .region(
