@@ -9,13 +9,16 @@
 import SwiftUI
 
 struct BasicButton: ViewModifier {
+    
+    var isPrimary: Bool = true
+    
     func body(content: Content) -> some View {
         content
             .frame(maxWidth: .infinity)
             .padding()
             .fontWeight(.bold)
-            .foregroundStyle(.white)
-            .background(.main)
+            .foregroundStyle(isPrimary ? .white : .primary)
+            .background(isPrimary ? .main : Color(.systemFill))
             .clipShape(Capsule())
     }
 }

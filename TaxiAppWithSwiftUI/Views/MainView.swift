@@ -118,36 +118,57 @@ extension MainView {
             Spacer()
             
             // Button
-            Button {
-                // 1. ユーザーの状態を「目的地検索中」に切り替え
-                mainViewModel.userState = .searchLocation
-                print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
-                // 2. State変数を切り替えて、.sheet モディファイアによる画面遷移をトリガー
-                mainViewModel.showSearchView.toggle()
-            } label: {
-                Text("目的地を指定する")
-                    .modifier(BasicButton())
-            }
-            // モーダル画面（SearchView）の表示設定
-            // $showSearchViewはモーダルの表示／非表示を管理するBinding<Bool>
-            .sheet(isPresented: $mainViewModel.showSearchView) {
-                // 画面（SearchView）が閉じられたときに実行されるコールバック処理
+            if mainViewModel.userState == .confirming {
                 
-                // 3. ユーザーの状態を「乗車地設定中」に戻す(← ルート確認画面じゃなければ）
-                if mainViewModel.userState != .confirming {
-                    mainViewModel.userState = .setRidePoint
+                HStack(spacing: 16) {
+                    Button {
+                        
+                    } label: {
+                        Text("キャンセル")
+                            .modifier(BasicButton(isPrimary: false))
+                    }
+                    
+                    Button {
+                        
+                    } label: {
+                        Text("タクシーを呼ぶ")
+                            .modifier(BasicButton())
+                    }
                 }
-                print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
-            } content: {
-                // 4. モーダルとして表示するView（検索画面）の定義
                 
-                // 現在の乗車地座標を検索の中心として渡す
-                SearchView(center: mainViewModel.ridePointCoordinates)
+            } else {
+                
+                Button {
+                    // 1. ユーザーの状態を「目的地検索中」に切り替え
+                    mainViewModel.userState = .searchLocation
+                    print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
+                    // 2. State変数を切り替えて、.sheet モディファイアによる画面遷移をトリガー
+                    mainViewModel.showSearchView.toggle()
+                } label: {
+                    Text("目的地を指定する")
+                        .modifier(BasicButton())
+                }
+                
+                // モーダル画面（SearchView）の表示設定
+                // $showSearchViewはモーダルの表示／非表示を管理するBinding<Bool>
+                .sheet(isPresented: $mainViewModel.showSearchView) {
+                    // 画面（SearchView）が閉じられたときに実行されるコールバック処理
+                    
+                    // 3. ユーザーの状態を「乗車地設定中」に戻す(← ルート確認画面じゃなければ）
+                    if mainViewModel.userState != .confirming {
+                        mainViewModel.userState = .setRidePoint
+                    }
+                    print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
+                } content: {
+                    // 4. モーダルとして表示するView（検索画面）の定義
+                    
+                    // 現在の乗車地座標を検索の中心として渡す
+                    SearchView(center: mainViewModel.ridePointCoordinates)
                     // SearchViewとその子孫ViewでMainViewModelを利用できるように環境に登録
-                    .environmentObject(mainViewModel)
+                        .environmentObject(mainViewModel)
+                }
+                
             }
-
-
         }
         .padding(.horizontal)
         .frame(height: 240)
