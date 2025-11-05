@@ -27,10 +27,10 @@ class MainViewModel: ObservableObject {
     
     @Published var showSearchView = false
     
-    @Published var ridePointAddress = ""
+    @Published var ridePointAddress: String?
     var ridePointCoordinates: CLLocationCoordinate2D?
     
-    @Published var destinationAddress = ""
+    @Published var destinationAddress: String?
     var destinationCoordinates: CLLocationCoordinate2D?
     
     @Published var mainCamera: MapCameraPosition = .userLocation(fallback: .automatic)

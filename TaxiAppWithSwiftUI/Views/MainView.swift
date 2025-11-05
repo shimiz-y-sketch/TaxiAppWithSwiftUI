@@ -92,7 +92,7 @@ extension MainView {
                             .foregroundStyle(.gray)
                     }
                     
-                    Text(mainViewModel.ridePointAddress)
+                    Text(mainViewModel.ridePointAddress ?? "")
                         .font(.headline)
                     
                 }
@@ -101,7 +101,7 @@ extension MainView {
             .padding(.vertical)
             
             // Destination
-            Destination(address: mainViewModel.destinationAddress.isEmpty ? nil : mainViewModel.destinationAddress)
+            Destination(address: mainViewModel.destinationAddress)
                 .overlay(alignment: .topLeading)  {
                     VStack {
                         Image(systemName: "arrowtriangle.down.fill")
