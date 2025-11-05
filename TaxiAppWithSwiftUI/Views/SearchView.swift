@@ -11,9 +11,9 @@ import MapKit
 struct SearchView: View {
     
     @StateObject var searchViewModel = SearchViewModel()
+    @EnvironmentObject var mainViewModel: MainViewModel
     @Environment(\.dismiss) var dismiss
     @State private var searchText = ""
-    let center: CLLocationCoordinate2D?
     
     var body: some View {
         NavigationStack {
@@ -42,7 +42,8 @@ struct SearchView: View {
 }
 
 #Preview {
-    SearchView(center: Constants.sampleCoordinates)
+    SearchView()
+        .environmentObject(MainViewModel())
 }
 
 extension SearchView {
@@ -54,7 +55,7 @@ extension SearchView {
             .clipShape(Capsule())
             .padding()
             .onSubmit {
-                guard !searchText.isEmpty, let center else { return }
+                guard !searchText.isEmpty, let center = mainViewModel.ridePointCoordinates else { return }
                 
                 Task {
                     await searchViewModel.searchPlace(searchText: searchText, center: center, meters: Constants.searchRegion)

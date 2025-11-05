@@ -152,7 +152,7 @@ extension MainView {
                     // 4. モーダルとして表示するView（検索画面）の定義
                     
                     // 現在の乗車地座標を検索の中心として渡す
-                    SearchView(center: mainViewModel.ridePointCoordinates)
+                    SearchView()
                     // SearchViewとその子孫ViewでMainViewModelを利用できるように環境に登録
                         .environmentObject(mainViewModel)
                 }
