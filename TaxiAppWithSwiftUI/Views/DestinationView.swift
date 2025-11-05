@@ -62,9 +62,8 @@ extension DestinationView {
             cameraPosition = .camera(MapCamera(centerCoordinate: placemark.coordinate, distance: 1000))
         }
         .onMapCameraChange(frequency: .onEnd) { context in
-            let center = context.region.center
             Task {
-                await mainViewModel.setDestination(latitude: center.latitude, longitude: center.longitude)
+                await mainViewModel.setDestination(coordinates: context.region.center)
             }
         }
     }

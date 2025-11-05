@@ -67,9 +67,8 @@ extension MainView {
         }
         .onMapCameraChange(frequency: .onEnd) { context in
             if mainViewModel.userState == .setRidePoint {
-                let center = context.region.center
                 Task {
-                    await mainViewModel.setRideLocation(latitude: center.latitude, longitude: center.longitude)
+                    await mainViewModel.setRideLocation(coordinates: context.region.center)
                     print("DEBUG: 逆ジオエンコーティング実行\nUserStateは → \(mainViewModel.userState)")  // デバッグ用
                 }
             }

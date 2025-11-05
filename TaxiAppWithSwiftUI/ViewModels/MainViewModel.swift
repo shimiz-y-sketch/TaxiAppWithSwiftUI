@@ -37,39 +37,14 @@ class MainViewModel: ObservableObject {
     
     @Published var route: MKRoute?
     
-    func setRideLocation(latitude: CLLocationDegrees, longitude: CLLocationDegrees) async {
-        let location = CLLocation(latitude: latitude, longitude: longitude)
-        ridePointCoordinates = location.coordinate
-        ridePointAddress = await getLocationAddress(location: location)
+    func setRideLocation(coordinates: CLLocationCoordinate2D) async {
+        ridePointCoordinates = coordinates
+        ridePointAddress = await coordinates.getLocationAddress()
     }
     
-    func setDestination(latitude: CLLocationDegrees, longitude: CLLocationDegrees) async {
-        let location = CLLocation(latitude: latitude, longitude: longitude)
-        destinationCoordinates = location.coordinate
-        destinationAddress = await getLocationAddress(location: location)
-    }
-      
-    /**
-     緯度・経度情報に基づいて逆ジオコーディングを実行し、住所文字列を取得してプロパティを更新
-
-     - Parameters:
-        - latitude: 検索する地点の緯度。
-        - longitude: 検索する地点の経度。
-     */
-    func getLocationAddress(location: CLLocation) async -> String {
-
-        let geocoder = CLGeocoder()
-        
-        do {
-            let placemarks = try await geocoder.reverseGeocodeLocation(location)
-            
-            guard let placemark = placemarks.first else { return "" }
-            return MKPlacemark(placemark: placemark).addressString
-            
-        } catch {
-            print("位置情報の処理に失敗：\(error.localizedDescription)")
-            return ""
-        }
+    func setDestination(coordinates: CLLocationCoordinate2D) async {
+        destinationCoordinates = coordinates
+        destinationAddress = await coordinates.getLocationAddress()
     }
     
     func fetchRoute() async {
