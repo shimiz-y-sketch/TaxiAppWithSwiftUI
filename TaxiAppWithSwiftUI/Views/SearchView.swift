@@ -42,7 +42,7 @@ struct SearchView: View {
 }
 
 #Preview {
-    SearchView(center: .init(latitude: 35.452183, longitude: 139.632419))
+    SearchView(center: Constants.sampleCoordinates)
 }
 
 extension SearchView {
@@ -57,7 +57,7 @@ extension SearchView {
                 guard !searchText.isEmpty, let center else { return }
                 
                 Task {
-                    await searchViewModel.searchPlace(searchText: searchText, center: center, meters: 1000)
+                    await searchViewModel.searchPlace(searchText: searchText, center: center, meters: Constants.searchRegion)
                 }
             }
     }

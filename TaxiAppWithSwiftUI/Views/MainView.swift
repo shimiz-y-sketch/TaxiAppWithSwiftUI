@@ -170,6 +170,6 @@ extension MainView {
             }
         }
         .padding(.horizontal)
-        .frame(height: 240)
+        .frame(height: Constants.informationAreaHeight)
     }
 }

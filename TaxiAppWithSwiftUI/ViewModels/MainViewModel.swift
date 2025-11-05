@@ -80,9 +80,9 @@ class MainViewModel: ObservableObject {
         case .confirming:
             // 1. ルートのポリラインが存在し、その境界矩形（Bounding Map Rect）が取得できるか確認
             guard var rect = route?.polyline.boundingMapRect else { return }
-            // 2. 境界矩形の幅と高さに対して、それぞれ20%のパディングサイズを計算
-            let paddingWidth = rect.size.width * 0.2
-            let paddingHeight = rect.size.height * 0.2
+            // 2. 境界矩形の幅と高さに対して、それぞれpaddingRatioのパディングサイズを計算
+            let paddingWidth = rect.size.width * Constants.paddingRatio
+            let paddingHeight = rect.size.height * Constants.paddingRatio
             // 3. 矩形のサイズをパディング分だけ拡大
             rect.size.width += paddingWidth
             rect.size.height += paddingHeight
