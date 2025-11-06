@@ -12,7 +12,7 @@ struct User {
     /// ユーザーを一意に識別するためのID
     let id: String
     /// ユーザーの識別番号
-    let number: String
+    let name: String
     /// ユーザーのメールアドレス
     let email: String
     /// ユーザーが現在アプリ上でどの操作段階にいるかを示す状態
@@ -29,4 +29,43 @@ enum UserState {
     case setDestination
     /// ルートを確認し、配車を確定しようとしている状態
     case confirming
+}
+
+// 開発用モックデータ
+extension User {
+    
+    static var mocks: [Self] {
+        [
+            User(
+                id: "1",
+                name: "ブルー",
+                email: "test1@example.com",
+                state: .setRidePoint
+            ),
+            User(
+                id: "2",
+                name: "パープル",
+                email: "test2@example.com",
+                state: .setRidePoint
+            ),
+            User(
+                id: "3",
+                name: "ピンク",
+                email: "test3@example.com",
+                state: .setRidePoint
+            ),
+            User(
+                id: "4",
+                name: "グリーン",
+                email: "test4@example.com",
+                state: .setRidePoint
+            ),
+            User(
+                id: "5",
+                name: "イエロー",
+                email: "test5@example.com",
+                state: .setRidePoint
+            )
+        ]
+    }
 }
