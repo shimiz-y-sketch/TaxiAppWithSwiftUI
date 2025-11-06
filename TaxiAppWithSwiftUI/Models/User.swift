@@ -34,6 +34,10 @@ enum UserState {
 // 開発用モックデータ
 extension User {
     
+    static var mock: Self {
+        mocks[0]
+    }
+    
     static var mocks: [Self] {
         [
             User(
