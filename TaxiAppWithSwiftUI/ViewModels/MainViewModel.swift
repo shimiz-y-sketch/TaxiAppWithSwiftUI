@@ -104,11 +104,11 @@ class MainViewModel: ObservableObject {
         userState = .setRidePoint
         
         // 乗車地関連の情報をリセット
-        ridePointAddress = ""       // 乗車地住所をクリア
+        ridePointAddress = nil       // 乗車地住所をクリア
         ridePointCoordinates = nil  // 乗車地座標をクリア
         
         // 目的地関連の情報をリセット
-        destinationAddress = ""     // 目的地住所をクリア
+        destinationAddress = nil     // 目的地住所をクリア
         destinationCoordinates = nil// 目的地座標をクリア
         
         // ルート情報をクリア
