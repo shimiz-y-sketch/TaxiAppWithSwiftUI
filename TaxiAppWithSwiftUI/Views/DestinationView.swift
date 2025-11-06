@@ -58,7 +58,7 @@ extension DestinationView {
             CenterPin()
         }
         .onAppear {
-            mainViewModel.userState = .setDestination
+            mainViewModel.currentUser.state = .setDestination
             cameraPosition = .camera(MapCamera(centerCoordinate: placemark.coordinate, distance: Constants.cameraDistance))
         }
         .onMapCameraChange(frequency: .onEnd) { context in
@@ -83,7 +83,7 @@ extension DestinationView {
             
             // Button
             Button {
-                mainViewModel.userState = .confirming
+                mainViewModel.currentUser.state = .confirming
                 mainViewModel.showSearchView = false
 
                 Task {

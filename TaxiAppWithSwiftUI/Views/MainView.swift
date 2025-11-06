@@ -64,7 +64,7 @@ extension MainView {
             }
         }
         .overlay {
-            if mainViewModel.userState == .setRidePoint {
+            if mainViewModel.currentUser.state == .setRidePoint {
                 CenterPin()
             }
         }
@@ -73,10 +73,10 @@ extension MainView {
             CLLocationManager().requestWhenInUseAuthorization()
         }
         .onMapCameraChange(frequency: .onEnd) { context in
-            if mainViewModel.userState == .setRidePoint {
+            if mainViewModel.currentUser.state == .setRidePoint {
                 Task {
                     await mainViewModel.setRideLocation(coordinates: context.region.center)
-                    print("DEBUG: 逆ジオエンコーティング実行\nUserStateは → \(mainViewModel.userState)")  // デバッグ用
+                    print("DEBUG: 逆ジオエンコーティング実行\nUserStateは → \(mainViewModel.currentUser.state)")  // デバッグ用
                 }
             }
         }
@@ -114,7 +114,7 @@ extension MainView {
             Spacer()
             
             // Button
-            if mainViewModel.userState == .confirming {
+            if mainViewModel.currentUser.state == .confirming {
                 
                 HStack(spacing: 16) {
                     Button {
@@ -136,8 +136,8 @@ extension MainView {
                 
                 Button {
                     // 1. ユーザーの状態を「目的地検索中」に切り替え
-                    mainViewModel.userState = .searchLocation
-                    print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
+                    mainViewModel.currentUser.state = .searchLocation
+                    print("UserState変更: \(mainViewModel.currentUser.state)")  // デバッグ用
                     // 2. State変数を切り替えて、.sheet モディファイアによる画面遷移をトリガー
                     mainViewModel.showSearchView.toggle()
                 } label: {
@@ -151,10 +151,10 @@ extension MainView {
                     // 画面（SearchView）が閉じられたときに実行されるコールバック処理
                     
                     // 3. ユーザーの状態を「乗車地設定中」に戻す(← ルート確認画面じゃなければ）
-                    if mainViewModel.userState != .confirming {
-                        mainViewModel.userState = .setRidePoint
+                    if mainViewModel.currentUser.state != .confirming {
+                        mainViewModel.currentUser.state = .setRidePoint
                     }
-                    print("UserState変更: \(mainViewModel.userState)")  // デバッグ用
+                    print("UserState変更: \(mainViewModel.currentUser.state)")  // デバッグ用
                 } content: {
                     // 4. モーダルとして表示するView（検索画面）の定義
                     

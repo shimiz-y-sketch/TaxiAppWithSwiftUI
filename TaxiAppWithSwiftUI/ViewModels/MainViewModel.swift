@@ -14,11 +14,7 @@ import SwiftUI
 
 class MainViewModel: ObservableObject {
     
-    var userState: UserState = .setRidePoint {
-        didSet {
-            print("DEBUG: UserState is \(userState)")
-        }
-    }
+    @Published var currentUser = User.mock
     
     @Published var showSearchView = false
     
@@ -72,7 +68,7 @@ class MainViewModel: ObservableObject {
     
     private func changeCameraPosition() {
         
-        switch userState {
+        switch currentUser.state {
             
         case .confirming:
             // 1. ルートのポリラインが存在し、その境界矩形（Bounding Map Rect）が取得できるか確認
@@ -98,7 +94,7 @@ class MainViewModel: ObservableObject {
     
     func reset() {
         // ユーザーの状態を「乗車地設定中」に戻す
-        userState = .setRidePoint
+        currentUser.state = .setRidePoint
         
         // 乗車地関連の情報をリセット
         ridePointAddress = nil       // 乗車地住所をクリア
