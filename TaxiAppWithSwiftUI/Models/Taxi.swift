@@ -28,62 +28,62 @@ struct Taxi {
 
 
 // 開発用モックデータ
-extension Taxi {
+extension Taxi: Identifiable {
     
     static var mocks: [Self] {
         [
             Taxi(
                 id: "1",
                 number: "111-111",
-                coordinates: .init(latitude: 35.6895, longitude: 139.6917),
+                coordinates: .init(latitude: 34.695301, longitude: 135.511417),
                 state: .empty
             ),
             Taxi(
                 id: "2",
                 number: "222-222",
-                coordinates: .init(latitude: 35.45762264893872, longitude: 139.6358223085829),
+                coordinates: .init(latitude: 34.710001, longitude: 135.500417),
                 state: .empty
             ),
             Taxi(
                 id: "3",
                 number: "333-333",
-                coordinates: .init(latitude: 35.4580885544616, longitude: 139.62589837664265),
+                coordinates: .init(latitude: 34.705301, longitude: 135.497417),
                 state: .goingToRidePoint
             ),
             Taxi(
                 id: "4",
                 number: "444-444",
-                coordinates: .init(latitude: 35.44998327370894, longitude: 139.62716243048024),
+                coordinates: .init(latitude: 34.697301, longitude: 135.508417),
                 state: .empty
             ),
             Taxi(
                 id: "5",
                 number: "555-555",
-                coordinates: .init(latitude: 35.447348742599324, longitude: 139.63230460286928),
+                coordinates: .init(latitude: 34.710301, longitude: 135.504417),
                 state: .goingToRidePoint
             ),
             Taxi(
                 id: "6",
                 number: "666-666",
-                coordinates: .init(latitude: 35.455875478531276, longitude: 139.63106053644591),
+                coordinates: .init(latitude: 34.700301, longitude: 135.498417),
                 state: .goingToRidePoint
             ),
             Taxi(
                 id: "7",
                 number: "777-777",
-                coordinates: .init(latitude: 35.44625371395893, longitude: 139.6392256158568),
+                coordinates: .init(latitude: 34.706301, longitude: 135.510417),
                 state: .empty
             ),
             Taxi(
                 id: "8",
                 number: "888-888",
-                coordinates: .init(latitude: 35.45429134421111, longitude: 139.63739526634797),
+                coordinates: .init(latitude: 34.703301, longitude: 135.511417),
                 state: .goingToRidePoint
             ),
             Taxi(
                 id: "9",
                 number: "999-999",
-                coordinates: .init(latitude: 35.44571784300777, longitude: 139.62734263722658),
+                coordinates: .init(latitude: 34.707301, longitude: 135.499417),
                 state: .empty
             )
         ]
