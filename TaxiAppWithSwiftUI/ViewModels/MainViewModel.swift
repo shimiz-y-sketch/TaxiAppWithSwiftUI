@@ -32,6 +32,8 @@ class MainViewModel: ObservableObject {
     
     @Published var route: MKRoute?
     
+    @Published var taxis: [Taxi] = Taxi.mocks
+    
     func setRideLocation(coordinates: CLLocationCoordinate2D) async {
         ridePointCoordinates = coordinates
         ridePointAddress = await coordinates.getLocationAddress()

@@ -55,6 +55,13 @@ extension MainView {
                 MapPolyline(polyline)
                     .stroke(.blue, lineWidth: 7)
             }
+            
+            // Taxi Location
+            ForEach(mainViewModel.taxis) { taxi in
+                Annotation(taxi.number, coordinate: taxi.coordinates) {
+                    Image(systemName: "car.circle.fill")
+                }
+            }
         }
         .overlay {
             if mainViewModel.userState == .setRidePoint {
