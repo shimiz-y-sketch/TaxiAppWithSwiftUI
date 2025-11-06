@@ -10,12 +10,7 @@ import MapKit
 import Combine
 import SwiftUI
 
-enum UserState {
-    case setRidePoint
-    case searchLocation
-    case setDestination
-    case confirming
-}
+
 
 class MainViewModel: ObservableObject {
     
