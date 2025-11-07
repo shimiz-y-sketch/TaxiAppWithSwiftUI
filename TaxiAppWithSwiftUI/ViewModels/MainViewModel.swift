@@ -9,6 +9,7 @@ import Foundation
 import MapKit
 import Combine
 import SwiftUI
+import FirebaseFirestore
 
 
 
@@ -92,6 +93,23 @@ class MainViewModel: ObservableObject {
         
     }
     
+    /// Firestoreからタクシー車両のデータを非同期で取得する
+    func fetchTaxis() async {
+        
+        // Firestoreデータベースのインスタンスを定数として取得
+        let firestore = Firestore.firestore()
+        
+        do {
+            // "taxis" という名前のコレクションから全てのドキュメントを取得する。
+            // 取得したデータはクエリのスナップショット (QuerySnapshot型) として `snapshot` 変数で受ける。
+            let snapshot = try await firestore.collection("taxis").getDocuments()
+            print("DEBUG: snapshot => \(snapshot)")
+            
+        } catch {
+            print("タクシーのデータの取得に失敗しました：\(error.localizedDescription)")
+        }
+    }
+    
     func reset() {
         // ユーザーの状態を「乗車地設定中」に戻す
         currentUser.state = .setRidePoint
@@ -110,4 +128,5 @@ class MainViewModel: ObservableObject {
         // カメラ位置をユーザーの現在地（または自動）にリセット
         changeCameraPosition()
     }
+    
 }
