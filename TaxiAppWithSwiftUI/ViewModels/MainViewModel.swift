@@ -29,7 +29,7 @@ class MainViewModel: ObservableObject {
     
     @Published var route: MKRoute?
     
-    @Published var taxis: [Taxi] = Taxi.mocks
+    @Published var taxis: [Taxi] = []
     
     func setRideLocation(coordinates: CLLocationCoordinate2D) async {
         ridePointCoordinates = coordinates
@@ -109,8 +109,10 @@ class MainViewModel: ObservableObject {
                 // Decodableに準拠した Swiftの Taxi 型のインスタンスに変換（デコード）する。
                 // 変換後の Taxi インスタンスは `taxi` 定数で受ける。
                 let taxi = try document.data(as: Taxi.self)
-                print("DEBUG: taxi => \(taxi)")
+                // 変換が成功したタクシーインスタンスを配列に追加
+                taxis.append(taxi)
             }
+            print("DEBUG: 全タクシーデータ取得完了 => \(taxis)")
             
         } catch {
             print("タクシーのデータの取得に失敗しました：\(error.localizedDescription)")
