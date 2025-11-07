@@ -17,13 +17,13 @@ struct Taxi: Identifiable {
         var coordinates: CLLocationCoordinate2D
         /// タクシーの現在の状態（空車、乗車地へ移動中など）
         var state: TaxiState
-    
-    enum TaxiState {
-        // 空車状態
-        case empty
-        /// 乗車地へ向かっている状態
-        case goingToRidePoint
-    }
+}
+
+enum TaxiState {
+    // 空車状態
+    case empty
+    /// 乗車地へ向かっている状態
+    case goingToRidePoint
 }
 
 
