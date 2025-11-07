@@ -6,8 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		63D4E66F2EBD771A00E2856F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 63D4E66E2EBD771A00E2856F /* GoogleService-Info.plist */; };
+		63D4E6722EBD7ADC00E2856F /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 63D4E6712EBD7ADC00E2856F /* FirebaseFirestore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		63A369A72EA77AD40079D829 /* TaxiAppWithSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TaxiAppWithSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		63D4E66E2EBD771A00E2856F /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +29,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63D4E6722EBD7ADC00E2856F /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -34,6 +41,7 @@
 			children = (
 				63A369A92EA77AD40079D829 /* TaxiAppWithSwiftUI */,
 				63A369A82EA77AD40079D829 /* Products */,
+				63D4E66E2EBD771A00E2856F /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -65,6 +73,7 @@
 			);
 			name = TaxiAppWithSwiftUI;
 			packageProductDependencies = (
+				63D4E6712EBD7ADC00E2856F /* FirebaseFirestore */,
 			);
 			productName = TaxiAppWithSwiftUI;
 			productReference = 63A369A72EA77AD40079D829 /* TaxiAppWithSwiftUI.app */;
@@ -94,6 +103,9 @@
 			);
 			mainGroup = 63A3699E2EA77AD40079D829;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				63D4E6702EBD7ADC00E2856F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 63A369A82EA77AD40079D829 /* Products */;
 			projectDirPath = "";
@@ -109,6 +121,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				63D4E66F2EBD771A00E2856F /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,6 +343,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		63D4E6702EBD7ADC00E2856F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		63D4E6712EBD7ADC00E2856F /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 63D4E6702EBD7ADC00E2856F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 63A3699F2EA77AD40079D829 /* Project object */;
 }
