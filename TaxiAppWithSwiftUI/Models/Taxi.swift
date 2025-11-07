@@ -28,7 +28,7 @@ struct Taxi: Identifiable, Decodable  {
     }
 }
 
-enum TaxiState: Decodable {
+enum TaxiState: String, Decodable {
     // 空車状態
     case empty
     /// 乗車地へ向かっている状態
