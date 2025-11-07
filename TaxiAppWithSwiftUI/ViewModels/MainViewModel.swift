@@ -93,32 +93,6 @@ class MainViewModel: ObservableObject {
         
     }
     
-    /// Firestoreからタクシー車両のデータを非同期で取得する
-//    func fetchTaxis() async {
-//        
-//        // Firestoreデータベースのインスタンスを定数として取得
-//        let firestore = Firestore.firestore()
-//        
-//        do {
-//            // "taxis" という名前のコレクションから全てのドキュメントを取得する。
-//            // 取得したデータはクエリのスナップショット (QuerySnapshot型) として `snapshot` 変数で受ける。
-//            let snapshot = try await firestore.collection("taxis").getDocuments()
-//            
-//            for document in snapshot.documents {
-//                // ドキュメントのデータ（辞書形式）を、
-//                // Decodableに準拠した Swiftの Taxi 型のインスタンスに変換（デコード）する。
-//                // 変換後の Taxi インスタンスは `taxi` 定数で受ける。
-//                let taxi = try document.data(as: Taxi.self)
-//                // 変換が成功したタクシーインスタンスを配列に追加
-//                taxis.append(taxi)
-//            }
-//            print("DEBUG: 全タクシーデータ取得完了 => \(taxis)")
-//            
-//        } catch {
-//            print("タクシーのデータの取得に失敗しました：\(error.localizedDescription)")
-//        }
-//    }
-    
     /// Firestoreの "taxis" コレクションのリアルタイムな変更を監視するためのリスナーを設定する
     func startTaxisListening() {
         
@@ -182,6 +156,49 @@ class MainViewModel: ObservableObject {
                 
             }
         }
+        
+    }
+    /// Firestoreからタクシー車両のデータを非同期で取得する
+    func fetchTaxis() async -> [Taxi]? {
+        // Firestoreデータベースのインスタンスを定数として取得
+        let firestore = Firestore.firestore()
+        
+        do {
+            // "taxis" という名前のコレクションから全てのドキュメントを取得する。
+            // 取得したデータはクエリのスナップショット (QuerySnapshot型) として `snapshot` 変数で受ける。
+            let snapshot = try await firestore.collection("taxis").getDocuments()
+            // デコードされた Taxi インスタンスを一時的に保持するための空の配列を宣言
+            var tempTaxis: [Taxi] = []
+            
+            for document in snapshot.documents {
+                // ドキュメントのデータ（辞書形式）を、
+                // Decodableに準拠した Swiftの Taxi 型のインスタンスに変換（デコード）する。
+                // 変換後の Taxi インスタンスは `taxi` 定数で受ける。
+                let taxi = try document.data(as: Taxi.self)
+                // 変換が成功したタクシーインスタンスを一時配列に追加
+                tempTaxis.append(taxi)
+            }
+            print("DEBUG: tempTaxis => \(tempTaxis)")
+            // 全てのドキュメントの処理が完了した後、結果の配列を返す
+            return tempTaxis
+
+            
+        } catch {
+            print("タクシーのデータの取得に失敗しました：\(error.localizedDescription)")
+            return nil
+        }
+    }
+    
+    /// 処理内容:
+        /// 1. fetchTaxis() を呼び出し、Firestoreから利用可能な全てのタクシーデータを取得する。
+        /// 2. **乗車地 (`ridePointCoordinates`) から最も直線距離が近い**タクシーを、取得した全タクシーデータ (`allTaxis`) の中から特定する。
+        /// 3. （今後実装予定）特定されたタクシーに対して配車リクエストを送信し、ユーザーの状態を更新する。
+    func callATaxi() async {
+        
+        guard let allTaxis = await fetchTaxis() else { return }
+        
+        
+        
         
     }
     
