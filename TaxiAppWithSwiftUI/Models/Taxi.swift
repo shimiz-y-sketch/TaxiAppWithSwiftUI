@@ -8,7 +8,7 @@
 import Foundation
 import CoreLocation
 
-struct Taxi {
+struct Taxi: Identifiable {
         /// タクシーを一意に識別するためのID
         let id: String
         /// タクシーの車両番号
@@ -28,7 +28,7 @@ struct Taxi {
 
 
 // 開発用モックデータ
-extension Taxi: Identifiable {
+extension Taxi {
     
     static var mocks: [Self] {
         [
