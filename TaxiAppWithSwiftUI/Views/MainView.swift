@@ -81,10 +81,6 @@ extension MainView {
                 }
             }
         }
-        // DEBUG用（動作確認）
-        .task {
-            await mainViewModel.fetchTaxis()
-        }
     }
     
     private var information: some View {

@@ -94,30 +94,30 @@ class MainViewModel: ObservableObject {
     }
     
     /// Firestoreからタクシー車両のデータを非同期で取得する
-    func fetchTaxis() async {
-        
-        // Firestoreデータベースのインスタンスを定数として取得
-        let firestore = Firestore.firestore()
-        
-        do {
-            // "taxis" という名前のコレクションから全てのドキュメントを取得する。
-            // 取得したデータはクエリのスナップショット (QuerySnapshot型) として `snapshot` 変数で受ける。
-            let snapshot = try await firestore.collection("taxis").getDocuments()
-            
-            for document in snapshot.documents {
-                // ドキュメントのデータ（辞書形式）を、
-                // Decodableに準拠した Swiftの Taxi 型のインスタンスに変換（デコード）する。
-                // 変換後の Taxi インスタンスは `taxi` 定数で受ける。
-                let taxi = try document.data(as: Taxi.self)
-                // 変換が成功したタクシーインスタンスを配列に追加
-                taxis.append(taxi)
-            }
-            print("DEBUG: 全タクシーデータ取得完了 => \(taxis)")
-            
-        } catch {
-            print("タクシーのデータの取得に失敗しました：\(error.localizedDescription)")
-        }
-    }
+//    func fetchTaxis() async {
+//        
+//        // Firestoreデータベースのインスタンスを定数として取得
+//        let firestore = Firestore.firestore()
+//        
+//        do {
+//            // "taxis" という名前のコレクションから全てのドキュメントを取得する。
+//            // 取得したデータはクエリのスナップショット (QuerySnapshot型) として `snapshot` 変数で受ける。
+//            let snapshot = try await firestore.collection("taxis").getDocuments()
+//            
+//            for document in snapshot.documents {
+//                // ドキュメントのデータ（辞書形式）を、
+//                // Decodableに準拠した Swiftの Taxi 型のインスタンスに変換（デコード）する。
+//                // 変換後の Taxi インスタンスは `taxi` 定数で受ける。
+//                let taxi = try document.data(as: Taxi.self)
+//                // 変換が成功したタクシーインスタンスを配列に追加
+//                taxis.append(taxi)
+//            }
+//            print("DEBUG: 全タクシーデータ取得完了 => \(taxis)")
+//            
+//        } catch {
+//            print("タクシーのデータの取得に失敗しました：\(error.localizedDescription)")
+//        }
+//    }
     
     /// Firestoreの "taxis" コレクションのリアルタイムな変更を監視するためのリスナーを設定する
     func startTaxisListening() {
