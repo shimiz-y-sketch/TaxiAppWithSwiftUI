@@ -142,16 +142,44 @@ class MainViewModel: ObservableObject {
             
             // 3. 変更点の処理: 今回のスナップショットで発生した差分（追加/変更/削除）を一つずつ処理する
             snapshot.documentChanges.forEach { diff in
-                // 変更のタイプに応じて処理を分岐
-                switch diff.type {
+                
+                // ドキュメントのデータをTaxi型にデコードする処理を do-catch ブロックで実行
+                do {
+                    // 変更のあったドキュメントを Taxi モデルに変換（デコード）し、`taxi` 定数に格納
+                    let taxi = try diff.document.data(as: Taxi.self)
                     
-                case .added:
-                    print("DEBUG: タクシーのデータが追加されました")
-                case .modified:
-                    print("DEBUG: タクシーのデータが更新されました")
-                case .removed:
-                    print("DEBUG: タクシーのデータが削除されました")
+                    // 変更のタイプに応じて処理を分岐 (デコード成功後)
+                    switch diff.type {
+                        
+                    case .added:
+                        print("DEBUG: タクシーのデータが追加されました")
+                        // ローカルの配列に新しくデコードされた Taxi インスタンスを追加
+                        self.taxis.append(taxi)
+                        
+                    case .modified:
+                        print("DEBUG: タクシーのデータが更新されました")
+                        // 1. 更新対象の Taxi インスタンスが配列内のどこにあるか、`id` を基にインデックスを検索
+                        let index = self.taxis.firstIndex { elem in
+                            elem.id == taxi.id
+                        }
+                        // 2. インデックスが見つかった場合、その位置の要素を新しいデータに置き換える
+                        if let index = index {
+                            self.taxis[index] = taxi
+                        }
+                        
+                    case .removed:
+                        print("DEBUG: タクシーのデータが削除されました")
+                        // ローカルの配列から、デコードされた Taxi の `id` と一致する要素を全て削除
+                        self.taxis.removeAll { elem in
+                            elem.id == taxi.id
+                        }
+                    }
+                    
+                } catch {
+                    // デコードに失敗した場合、そのエラーを出力する
+                    print("Taxi型へのデータ変換に失敗:\(error.localizedDescription)")
                 }
+                
             }
         }
         
