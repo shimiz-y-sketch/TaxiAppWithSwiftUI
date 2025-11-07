@@ -103,7 +103,14 @@ class MainViewModel: ObservableObject {
             // "taxis" という名前のコレクションから全てのドキュメントを取得する。
             // 取得したデータはクエリのスナップショット (QuerySnapshot型) として `snapshot` 変数で受ける。
             let snapshot = try await firestore.collection("taxis").getDocuments()
-            print("DEBUG: snapshot => \(snapshot)")
+            
+            for document in snapshot.documents {
+                // ドキュメントのデータ（辞書形式）を、
+                // Decodableに準拠した Swiftの Taxi 型のインスタンスに変換（デコード）する。
+                // 変換後の Taxi インスタンスは `taxi` 定数で受ける。
+                let taxi = try document.data(as: Taxi.self)
+                print("DEBUG: taxi => \(taxi)")
+            }
             
         } catch {
             print("タクシーのデータの取得に失敗しました：\(error.localizedDescription)")
