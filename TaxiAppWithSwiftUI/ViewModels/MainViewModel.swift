@@ -30,7 +30,12 @@ class MainViewModel: ObservableObject {
     @Published var route: MKRoute?
     
     @Published var taxis: [Taxi] = []
+    /// Firestoreで設定した**全タクシーデータのリアルタイムリスナー**を保持するためのプロパティ。
+    /// 配車確定時（callATaxi()実行時）に、このリスナーを停止（remove）するために使用される。
     var taxisListener: ListenerRegistration?
+    ///  配車が確定し、ユーザーが現在乗車を待っているタクシーのデータ。
+    /// このデータは、マップ上でのタクシーの移動や状態表示に使用される。
+    @Published var selectedTaxi: Taxi?
     
     func setRideLocation(coordinates: CLLocationCoordinate2D) async {
         ridePointCoordinates = coordinates
@@ -274,6 +279,9 @@ class MainViewModel: ObservableObject {
                 do {
                     // スナップショットから Taxi モデルにデータをデコード
                     let taxi = try snapshot.data(as: Taxi.self)
+                    // デコードしたリアルタイムデータを @Published プロパティに格納し、UIの更新をトリガーする
+                    self.selectedTaxi = taxi
+                    
                     // データの受信をデバッグ出力（リアルタイムの動きを確認）
                     print("DEBUG: 配車するタクシーのデータ \(taxi)")
                 } catch {

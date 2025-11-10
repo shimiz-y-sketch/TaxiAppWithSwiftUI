@@ -81,6 +81,18 @@ extension MainView {
                     .stroke(.blue, lineWidth: 7)
             }
             
+            // Selected Taxi
+            // ViewModelの `selectedTaxi` プロパティ（配車が確定したタクシー）が存在する場合に表示
+            if let taxi = mainViewModel.selectedTaxi {
+
+                // 確定したタクシーの位置にカスタムアノテーションを表示
+                Annotation(taxi.number, coordinate: taxi.coordinates) {
+                    Image(systemName: "car.circle.fill")
+                        .font(.largeTitle)
+                        .foregroundStyle(.main)
+                }
+                
+            }
         }
         .overlay {
             if mainViewModel.currentUser.state == .setRidePoint {
