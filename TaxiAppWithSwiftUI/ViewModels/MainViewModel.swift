@@ -212,6 +212,8 @@ class MainViewModel: ObservableObject {
         
         // 3. 全タクシーを反復処理し、乗車地からの距離を計算・出力:
         for taxi in allTaxis {
+            // guard ステートメントで空車（.empty）でないタクシーをフィルタリング
+            guard taxi.state == .empty else { continue }
             
             // 現在のタクシーの位置情報（coordinates）をCLLocationオブジェクトに変換
             let taxiLocation = CLLocation(latitude: taxi.coordinates.latitude, longitude: taxi.coordinates.longitude)
@@ -219,9 +221,6 @@ class MainViewModel: ObservableObject {
             // rideLocation（乗車地）から taxiLocation（タクシー位置）までの
             // 直線距離（メートル単位）を計算
             let distance = rideLocation.distance(from: taxiLocation)
-            
-            // 計算されたタクシーごとの距離をデバッグログに出力
-            print("Distance: \(taxi.id) \(distance)")
             
             // 距離の比較と最短タクシーの更新
             if distance < minDistance {
@@ -231,7 +230,7 @@ class MainViewModel: ObservableObject {
             }
         }
         
-        print("Distance: \(selectedTaxiId ?? "") \(minDistance) - Nearest")
+        print("Selected taxi is  \(selectedTaxiId ?? "none...") \(minDistance)")
     }
     
     func reset() {
