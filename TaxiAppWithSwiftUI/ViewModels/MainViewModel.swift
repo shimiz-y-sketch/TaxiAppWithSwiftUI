@@ -46,7 +46,8 @@ class MainViewModel: ObservableObject {
         destinationCoordinates = coordinates
         destinationAddress = await coordinates.getLocationAddress()
     }
-    
+    /// 乗車地と目的地の間に最適な経路（`MKRoute`）を計算し、結果を `route` プロパティに格納
+    /// 経路計算後、`changeCameraPosition()` を呼び出し、マップの表示をルート全体が収まるように自動調整
     func fetchRoute() async {
         // 1. 値のアンラップ
         guard let ridePointCoordinates = ridePointCoordinates else { return }
@@ -71,32 +72,6 @@ class MainViewModel: ObservableObject {
         } catch {
             print("ルートの生成に失敗しました： \(error.localizedDescription)")
         }
-    }
-    
-    private func changeCameraPosition() {
-        
-        switch currentUser.state {
-            
-        case .confirming:
-            // 1. ルートのポリラインが存在し、その境界矩形（Bounding Map Rect）が取得できるか確認
-            guard var rect = route?.polyline.boundingMapRect else { return }
-            // 2. 境界矩形の幅と高さに対して、それぞれpaddingRatioのパディングサイズを計算
-            let paddingWidth = rect.size.width * Constants.paddingRatio
-            let paddingHeight = rect.size.height * Constants.paddingRatio
-            // 3. 矩形のサイズをパディング分だけ拡大
-            rect.size.width += paddingWidth
-            rect.size.height += paddingHeight
-            // 4. 拡大した矩形の中心が変わらないように、原点（左上隅）を調整する
-            //    幅のパディングを左右均等に割り振るため、原点X座標を paddingWidth / 2 だけ左にずらす
-            rect.origin.x -= paddingWidth / 2
-            rect.origin.y -= paddingHeight / 2
-            // 5. 調整済みの矩形（ルート全体と余白を含む領域）に合わせてカメラ位置を設定
-            mainCamera = .rect(rect)
-            
-        default :
-            mainCamera = .userLocation(fallback: .automatic)
-        }
-        
     }
     
     /// Firestoreの "taxis" コレクションのリアルタイムな変更を監視するためのリスナーを設定する
@@ -163,80 +138,6 @@ class MainViewModel: ObservableObject {
             }
         }
         
-    }
-    /// Firestoreからタクシー車両のデータを非同期で取得する
-    private func fetchTaxis() async -> [Taxi]? {
-        // Firestoreデータベースのインスタンスを定数として取得
-        let firestore = Firestore.firestore()
-        
-        do {
-            // "taxis" という名前のコレクションから全てのドキュメントを取得する。
-            // 取得したデータはクエリのスナップショット (QuerySnapshot型) として `snapshot` 変数で受ける。
-            let snapshot = try await firestore.collection("taxis").getDocuments()
-            // デコードされた Taxi インスタンスを一時的に保持するための空の配列を宣言
-            var tempTaxis: [Taxi] = []
-            
-            for document in snapshot.documents {
-                // ドキュメントのデータ（辞書形式）を、
-                // Decodableに準拠した Swiftの Taxi 型のインスタンスに変換（デコード）する。
-                // 変換後の Taxi インスタンスは `taxi` 定数で受ける。
-                let taxi = try document.data(as: Taxi.self)
-                // 変換が成功したタクシーインスタンスを一時配列に追加
-                tempTaxis.append(taxi)
-            }
-            print("DEBUG: tempTaxis => \(tempTaxis)")
-            // 全てのドキュメントの処理が完了した後、結果の配列を返す
-            return tempTaxis
-
-            
-        } catch {
-            print("タクシーのデータの取得に失敗しました：\(error.localizedDescription)")
-            return nil
-        }
-    }
-    // 最短距離の空車タクシーのIDを返すメソッド
-    private func getSelectedTaxiId() async -> String? {
-        // 1. 必要なデータの安全なアンラップ:
-        //    Firestoreから取得した全タクシーデータ (allTaxis) とユーザーが設定した乗車地座標 (ridePointCoordinates) が
-        //    取得できなければ、処理を中断し nil を返す。
-        guard let allTaxis = await fetchTaxis(),
-              let ridePointCoordinates
-        else { return nil }
-        
-        // 2. 乗車地のCLLocationオブジェクトを生成:
-        //    距離計算のために、乗車地の座標をCLLocationオブジェクトに変換する。
-        let rideLocation = CLLocation(latitude: ridePointCoordinates.latitude, longitude: ridePointCoordinates.longitude)
-        
-        // 最短距離と、そのタクシーのIDを保持するための変数を初期化
-        // minDistance: 現在見つかっている最短距離を保持（初期値は無限大）
-        var minDistance: CLLocationDistance = .infinity
-        // selectedTaxiId: 最短距離のタクシーのIDを保持
-        var selectedTaxiId: String?
-        
-        // 3. 全タクシーを反復処理し、乗車地からの距離を計算・最短を特定する:
-        for taxi in allTaxis {
-            // guard ステートメントで空車（.empty）でないタクシーをフィルタリング
-            // 空車でない場合、continue が実行され、次のタクシーのチェックにスキップされる。
-            guard taxi.state == .empty else { continue }
-            
-            // 現在のタクシーの位置情報（coordinates）をCLLocationオブジェクトに変換
-            let taxiLocation = CLLocation(latitude: taxi.coordinates.latitude, longitude: taxi.coordinates.longitude)
-            
-            // rideLocation（乗車地）から taxiLocation（タクシー位置）までの
-            // 直線距離（メートル単位）を計算
-            let distance = rideLocation.distance(from: taxiLocation)
-            
-            // 距離の比較と最短タクシーの更新
-            if distance < minDistance {
-                // 現在のタクシーの距離が、記録されている最短距離よりも短ければ以下を実行
-                minDistance = distance     // 最短距離をこの距離で更新
-                selectedTaxiId = taxi.id   // 最も近いタクシーのIDをこのタクシーで更新
-            }
-        }
-        // DEBUG: 最短タクシーのIDと距離をコンソールに出力
-        print("DEBUG:Selected taxi is \(selectedTaxiId ?? "none...") \(minDistance)")
-        
-        return selectedTaxiId
     }
     
     //---------------------------------------------------------
@@ -314,4 +215,107 @@ class MainViewModel: ObservableObject {
         changeCameraPosition()
     }
     
+}
+
+extension MainViewModel {
+    /// ユーザーの状態に応じてマップのカメラ位置を制御
+    private func changeCameraPosition() {
+        
+        switch currentUser.state {
+            
+        case .confirming:
+            // 1. ルートのポリラインが存在し、その境界矩形（Bounding Map Rect）が取得できるか確認
+            guard var rect = route?.polyline.boundingMapRect else { return }
+            // 2. 境界矩形の幅と高さに対して、それぞれpaddingRatioのパディングサイズを計算
+            let paddingWidth = rect.size.width * Constants.paddingRatio
+            let paddingHeight = rect.size.height * Constants.paddingRatio
+            // 3. 矩形のサイズをパディング分だけ拡大
+            rect.size.width += paddingWidth
+            rect.size.height += paddingHeight
+            // 4. 拡大した矩形の中心が変わらないように、原点（左上隅）を調整する
+            //    幅のパディングを左右均等に割り振るため、原点X座標を paddingWidth / 2 だけ左にずらす
+            rect.origin.x -= paddingWidth / 2
+            rect.origin.y -= paddingHeight / 2
+            // 5. 調整済みの矩形（ルート全体と余白を含む領域）に合わせてカメラ位置を設定
+            mainCamera = .rect(rect)
+            
+        default :
+            mainCamera = .userLocation(fallback: .automatic)
+        }
+        
+    }
+    /// Firestoreからタクシー車両のデータを非同期で取得する
+    private func fetchTaxis() async -> [Taxi]? {
+        // Firestoreデータベースのインスタンスを定数として取得
+        let firestore = Firestore.firestore()
+        
+        do {
+            // "taxis" という名前のコレクションから全てのドキュメントを取得する。
+            // 取得したデータはクエリのスナップショット (QuerySnapshot型) として `snapshot` 変数で受ける。
+            let snapshot = try await firestore.collection("taxis").getDocuments()
+            // デコードされた Taxi インスタンスを一時的に保持するための空の配列を宣言
+            var tempTaxis: [Taxi] = []
+            
+            for document in snapshot.documents {
+                // ドキュメントのデータ（辞書形式）を、
+                // Decodableに準拠した Swiftの Taxi 型のインスタンスに変換（デコード）する。
+                // 変換後の Taxi インスタンスは `taxi` 定数で受ける。
+                let taxi = try document.data(as: Taxi.self)
+                // 変換が成功したタクシーインスタンスを一時配列に追加
+                tempTaxis.append(taxi)
+            }
+            print("DEBUG: tempTaxis => \(tempTaxis)")
+            // 全てのドキュメントの処理が完了した後、結果の配列を返す
+            return tempTaxis
+
+            
+        } catch {
+            print("タクシーのデータの取得に失敗しました：\(error.localizedDescription)")
+            return nil
+        }
+    }
+    // 最短距離の空車タクシーのIDを返すメソッド
+    private func getSelectedTaxiId() async -> String? {
+        // 1. 必要なデータの安全なアンラップ:
+        //    Firestoreから取得した全タクシーデータ (allTaxis) とユーザーが設定した乗車地座標 (ridePointCoordinates) が
+        //    取得できなければ、処理を中断し nil を返す。
+        guard let allTaxis = await fetchTaxis(),
+              let ridePointCoordinates
+        else { return nil }
+        
+        // 2. 乗車地のCLLocationオブジェクトを生成:
+        //    距離計算のために、乗車地の座標をCLLocationオブジェクトに変換する。
+        let rideLocation = CLLocation(latitude: ridePointCoordinates.latitude, longitude: ridePointCoordinates.longitude)
+        
+        // 最短距離と、そのタクシーのIDを保持するための変数を初期化
+        // minDistance: 現在見つかっている最短距離を保持（初期値は無限大）
+        var minDistance: CLLocationDistance = .infinity
+        // selectedTaxiId: 最短距離のタクシーのIDを保持
+        var selectedTaxiId: String?
+        
+        // 3. 全タクシーを反復処理し、乗車地からの距離を計算・最短を特定する:
+        for taxi in allTaxis {
+            // guard ステートメントで空車（.empty）でないタクシーをフィルタリング
+            // 空車でない場合、continue が実行され、次のタクシーのチェックにスキップされる。
+            guard taxi.state == .empty else { continue }
+            
+            // 現在のタクシーの位置情報（coordinates）をCLLocationオブジェクトに変換
+            let taxiLocation = CLLocation(latitude: taxi.coordinates.latitude, longitude: taxi.coordinates.longitude)
+            
+            // rideLocation（乗車地）から taxiLocation（タクシー位置）までの
+            // 直線距離（メートル単位）を計算
+            let distance = rideLocation.distance(from: taxiLocation)
+            
+            // 距離の比較と最短タクシーの更新
+            if distance < minDistance {
+                // 現在のタクシーの距離が、記録されている最短距離よりも短ければ以下を実行
+                minDistance = distance     // 最短距離をこの距離で更新
+                selectedTaxiId = taxi.id   // 最も近いタクシーのIDをこのタクシーで更新
+            }
+        }
+        // DEBUG: 最短タクシーのIDと距離をコンソールに出力
+        print("DEBUG:Selected taxi is \(selectedTaxiId ?? "none...") \(minDistance)")
+        
+        return selectedTaxiId
+    }
 }
