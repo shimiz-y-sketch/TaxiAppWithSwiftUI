@@ -30,6 +30,7 @@ class MainViewModel: ObservableObject {
     @Published var route: MKRoute?
     
     @Published var taxis: [Taxi] = []
+    var taxisListener: ListenerRegistration?
     
     func setRideLocation(coordinates: CLLocationCoordinate2D) async {
         ridePointCoordinates = coordinates
@@ -102,7 +103,7 @@ class MainViewModel: ObservableObject {
         // firestore.collection("taxis") に対してスナップショットリスナーを設定
         // これにより、データベースのデータが変更されるたびに、
         // 後続のクロージャ（クエリ結果とエラーを受け取る部分）が自動で実行されるようになる。
-        firestore.collection("taxis").addSnapshotListener { querySnapshot, error in
+        taxisListener = firestore.collection("taxis").addSnapshotListener { querySnapshot, error in
             // 1. エラーハンドリング: リスナーの取得またはデータ読み取り中にエラーが発生した場合
             if let error = error {
                 print("リスナーの取得に失敗：\(error.localizedDescription)")
@@ -252,6 +253,9 @@ class MainViewModel: ObservableObject {
                 // タクシーの状態（state）を（goingToRidePoint）に更新
                 "state" : TaxiState.goingToRidePoint.rawValue
             ])
+            
+            taxisListener?.remove()
+            
             // 3. 選択したタクシーのドキュメントにリアルタイムリスナーを設定:
             //    タクシーの位置や状態が変更されるたびに、そのデータをリアルタイムで受け取るためのリスナーを設定する。
             Firestore.firestore().collection("taxis").document(selectedTaxiId).addSnapshotListener {
