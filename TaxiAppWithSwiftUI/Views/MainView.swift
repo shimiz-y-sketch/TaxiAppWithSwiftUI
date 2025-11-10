@@ -60,7 +60,23 @@ extension MainView {
                 }
             }
             
+            // Route Polyline
+            // ユーザーの状態が `.confirming` (ルート確認中) の場合にのみ、ルートの線を表示する
             if mainViewModel.currentUser.state == .confirming {
+                // 条件: ViewModelの `route` プロパティにポリラインデータが存在する場合のみ表示
+                if let polyline = mainViewModel.route?.polyline {
+                    // 取得したポリラインデータをマップ上に描画
+                    MapPolyline(polyline)
+                    // ルートの線のスタイルを設定
+                        .stroke(.blue, lineWidth: 7)
+                }
+            }
+            
+            // ユーザーの状態が `.confirming` (ルート確認中) または `.ordered` (配車済み) の場合に、
+            // 乗車地と目的地のマーカーを表示する
+            if mainViewModel.currentUser.state == .confirming ||
+                mainViewModel.currentUser.state == .ordered
+            {
                 // Ride point and Destination
                 // 条件: 乗車地座標と目的地座標の両方が設定されている場合のみ表示
                 if let ridePoint = mainViewModel.ridePointCoordinates,
@@ -72,26 +88,20 @@ extension MainView {
                 }
             }
             
-            // Route Polyline
-            // 条件: ViewModelの `route` プロパティにポリラインデータが存在する場合のみ表示
-            if let polyline = mainViewModel.route?.polyline {
-                // 取得したポリラインデータをマップ上に描画
-                MapPolyline(polyline)
-                // ルートの線のスタイルを設定
-                    .stroke(.blue, lineWidth: 7)
-            }
-            
             // Selected Taxi
-            // ViewModelの `selectedTaxi` プロパティ（配車が確定したタクシー）が存在する場合に表示
-            if let taxi = mainViewModel.selectedTaxi {
-
-                // 確定したタクシーの位置にカスタムアノテーションを表示
-                Annotation(taxi.number, coordinate: taxi.coordinates) {
-                    Image(systemName: "car.circle.fill")
-                        .font(.largeTitle)
-                        .foregroundStyle(.main)
+            // ユーザーの状態が `.ordered` (配車済み) の時に配車タクシー用マーカーを表示
+            if mainViewModel.currentUser.state == .ordered {
+                // ViewModelの `selectedTaxi` プロパティ（配車が確定したタクシー）が存在する場合に表示
+                if let taxi = mainViewModel.selectedTaxi {
+                    
+                    // 確定したタクシーの位置にカスタムアノテーションを表示
+                    Annotation(taxi.number, coordinate: taxi.coordinates) {
+                        Image(systemName: "car.circle.fill")
+                            .font(.largeTitle)
+                            .foregroundStyle(.main)
+                    }
+                    
                 }
-                
             }
         }
         .overlay {
