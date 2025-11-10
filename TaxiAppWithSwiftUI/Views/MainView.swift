@@ -126,6 +126,9 @@ extension MainView {
                     }
                     
                     Button {
+                        Task {
+                            await mainViewModel.callATaxi()
+                        }
                         
                     } label: {
                         Text("タクシーを呼ぶ")

@@ -191,15 +191,32 @@ class MainViewModel: ObservableObject {
     
     /// 処理内容:
         /// 1. fetchTaxis() を呼び出し、Firestoreから利用可能な全てのタクシーデータを取得する。
-        /// 2. **乗車地 (`ridePointCoordinates`) から最も直線距離が近い**タクシーを、取得した全タクシーデータ (`allTaxis`) の中から特定する。
+        /// 2. 乗車地 (`ridePointCoordinates`) から最も直線距離が近いタクシーを、取得した全タクシーデータ (`allTaxis`) の中から特定する。
         /// 3. （今後実装予定）特定されたタクシーに対して配車リクエストを送信し、ユーザーの状態を更新する。
     func callATaxi() async {
+        // 1. 必要なデータの安全なアンラップ:
+        //    全タクシーデータと乗車地座標が取得できなければ、処理を中断する。
+        guard let allTaxis = await fetchTaxis(),
+              let ridePointCoordinates
+        else { return }
         
-        guard let allTaxis = await fetchTaxis() else { return }
+        // 2. 乗車地のCLLocationオブジェクトを生成:
+        //    距離計算のために、乗車地の座標をCLLocationオブジェクトに変換する。
+        let rideLocation = CLLocation(latitude: ridePointCoordinates.latitude, longitude: ridePointCoordinates.longitude)
         
-        
-        
-        
+        // 3. 全タクシーを反復処理し、乗車地からの距離を計算・出力:
+        for taxi in allTaxis {
+            
+            // 現在のタクシーの位置情報（coordinates）をCLLocationオブジェクトに変換
+            let taxiLocation = CLLocation(latitude: taxi.coordinates.latitude, longitude: taxi.coordinates.longitude)
+            
+            // rideLocation（乗車地）から taxiLocation（タクシー位置）までの
+            // 直線距離（メートル単位）を計算
+            let distance = rideLocation.distance(from: taxiLocation)
+            
+            // 計算されたタクシーごとの距離をデバッグログに出力
+            print("Distance: \(taxi.number) \(distance)")
+        }
     }
     
     func reset() {
