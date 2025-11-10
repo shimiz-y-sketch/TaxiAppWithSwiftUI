@@ -38,30 +38,47 @@ struct MainView: View {
 extension MainView {
     
     private var map: some View {
+        // Map Viewを定義し、カメラ位置を ViewModel の `mainCamera` にバインド
         Map(position: $mainViewModel.mainCamera) {
             
             // User's current location
+            // ユーザーの現在地を示す組み込みのアノテーション
             UserAnnotation()
             
+            // Taxi Location
+            // 条件: ユーザーが乗車地を設定している状態（.setRidePoint）のときのみ表示
+            if mainViewModel.currentUser.state == .setRidePoint {
+                // ViewModelのタクシー配列を反復処理
+                ForEach(mainViewModel.taxis) { taxi in
+                    // 条件: タクシーの状態が .empty（空車）の場合のみ表示
+                    if taxi.state == .empty {
+                        // タクシーの位置にカスタムアノテーションを表示
+                        Annotation(taxi.number, coordinate: taxi.coordinates) {
+                            Image(systemName: "car.circle.fill")
+                        }
+                    }
+                }
+            }
+            
             // Ride point and Destination
+            // 条件: 乗車地座標と目的地座標の両方が設定されている場合のみ表示
             if let ridePoint = mainViewModel.ridePointCoordinates,
                let destination = mainViewModel.destinationCoordinates {
+                // 乗車地マーカーを青色で表示
                 Marker("乗車地", coordinate: ridePoint).tint(.blue)
+                // 目的地マーカーを青色で表示
                 Marker("目的地", coordinate: destination).tint(.blue)
             }
             
             // Route Polyline
+            // 条件: ViewModelの `route` プロパティにポリラインデータが存在する場合のみ表示
             if let polyline = mainViewModel.route?.polyline {
+                // 取得したポリラインデータをマップ上に描画
                 MapPolyline(polyline)
+                // ルートの線のスタイルを設定
                     .stroke(.blue, lineWidth: 7)
             }
             
-            // Taxi Location
-            ForEach(mainViewModel.taxis) { taxi in
-                Annotation(taxi.number, coordinate: taxi.coordinates) {
-                    Image(systemName: "car.circle.fill")
-                }
-            }
         }
         .overlay {
             if mainViewModel.currentUser.state == .setRidePoint {
