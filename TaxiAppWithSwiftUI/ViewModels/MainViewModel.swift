@@ -230,7 +230,20 @@ class MainViewModel: ObservableObject {
             }
         }
         
-        print("Selected taxi is  \(selectedTaxiId ?? "none...") \(minDistance)")
+        print("DEBUG:Selected taxi is \(selectedTaxiId ?? "none...") \(minDistance)")
+        
+        // 4. 最短タクシーのIDの確認:
+        guard let selectedTaxiId else { return }
+        do {
+            // Firestore内の "taxis" コレクションから、特定されたタクシーのドキュメント（ID: selectedTaxiId）を取得し、データを更新する。
+            try await Firestore.firestore().collection("taxis").document(selectedTaxiId).updateData([
+                // キーにはフィールドの名前、バリューには保存する値
+                // タクシーの状態（state）を（goingToRidePoint）に更新
+                "state" : TaxiState.goingToRidePoint.rawValue
+            ])
+        } catch {
+            print("タクシーのデータ更新に失敗：\(error.localizedDescription)")
+        }
     }
     
     func reset() {
