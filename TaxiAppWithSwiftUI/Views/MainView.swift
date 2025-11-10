@@ -18,7 +18,7 @@ struct MainView: View {
 //            center: .init(latitude: 35.452183, longitude: 139.632419),
 //            latitudinalMeters: 10000,
 //            longitudinalMeters: 10000)
-//        )
+    //        )
     
     var body: some View {
         VStack {
@@ -60,14 +60,16 @@ extension MainView {
                 }
             }
             
-            // Ride point and Destination
-            // 条件: 乗車地座標と目的地座標の両方が設定されている場合のみ表示
-            if let ridePoint = mainViewModel.ridePointCoordinates,
-               let destination = mainViewModel.destinationCoordinates {
-                // 乗車地マーカーを青色で表示
-                Marker("乗車地", coordinate: ridePoint).tint(.blue)
-                // 目的地マーカーを青色で表示
-                Marker("目的地", coordinate: destination).tint(.blue)
+            if mainViewModel.currentUser.state == .confirming {
+                // Ride point and Destination
+                // 条件: 乗車地座標と目的地座標の両方が設定されている場合のみ表示
+                if let ridePoint = mainViewModel.ridePointCoordinates,
+                   let destination = mainViewModel.destinationCoordinates {
+                    // 乗車地マーカーを青色で表示
+                    Marker("乗車地", coordinate: ridePoint).tint(.blue)
+                    // 目的地マーカーを青色で表示
+                    Marker("目的地", coordinate: destination).tint(.blue)
+                }
             }
             
             // Route Polyline
