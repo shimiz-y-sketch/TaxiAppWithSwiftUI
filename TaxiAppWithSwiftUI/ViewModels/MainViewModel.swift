@@ -190,9 +190,9 @@ class MainViewModel: ObservableObject {
     }
     
     /// 処理内容:
-        /// 1. fetchTaxis() を呼び出し、Firestoreから利用可能な全てのタクシーデータを取得する。
-        /// 2. 乗車地 (`ridePointCoordinates`) から最も直線距離が近いタクシーを、取得した全タクシーデータ (`allTaxis`) の中から特定する。
-        /// 3. （今後実装予定）特定されたタクシーに対して配車リクエストを送信し、ユーザーの状態を更新する。
+    /// 1. fetchTaxis() を呼び出し、Firestoreから利用可能な全てのタクシーデータを取得する。
+    /// 2. 乗車地 (`ridePointCoordinates`) から最も直線距離が近いタクシーを、取得した全タクシーデータ (`allTaxis`) の中から特定する。
+    /// 3. （今後実装予定）特定されたタクシーに対して配車リクエストを送信し、ユーザーの状態を更新する。
     func callATaxi() async {
         // 1. 必要なデータの安全なアンラップ:
         //    全タクシーデータと乗車地座標が取得できなければ、処理を中断する。
@@ -203,6 +203,12 @@ class MainViewModel: ObservableObject {
         // 2. 乗車地のCLLocationオブジェクトを生成:
         //    距離計算のために、乗車地の座標をCLLocationオブジェクトに変換する。
         let rideLocation = CLLocation(latitude: ridePointCoordinates.latitude, longitude: ridePointCoordinates.longitude)
+        
+        // 最短距離と、そのタクシーのIDを保持するための変数を初期化
+        // minDistance: 現在見つかっている最短距離を保持（初期値は無限大）
+        var minDistance: CLLocationDistance = .infinity
+        // selectedTaxiId: 最短距離のタクシーのIDを保持
+        var selectedTaxiId: String?
         
         // 3. 全タクシーを反復処理し、乗車地からの距離を計算・出力:
         for taxi in allTaxis {
@@ -215,8 +221,17 @@ class MainViewModel: ObservableObject {
             let distance = rideLocation.distance(from: taxiLocation)
             
             // 計算されたタクシーごとの距離をデバッグログに出力
-            print("Distance: \(taxi.number) \(distance)")
+            print("Distance: \(taxi.id) \(distance)")
+            
+            // 距離の比較と最短タクシーの更新
+            if distance < minDistance {
+                // 現在のタクシーの距離が、記録されている最短距離よりも短ければ以下を実行
+                minDistance = distance     // 最短距離をこの距離で更新
+                selectedTaxiId = taxi.id   // 最も近いタクシーのIDをこのタクシーで更新
+            }
         }
+        
+        print("Distance: \(selectedTaxiId ?? "") \(minDistance) - Nearest")
     }
     
     func reset() {
