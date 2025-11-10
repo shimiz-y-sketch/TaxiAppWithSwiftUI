@@ -188,6 +188,9 @@ class MainViewModel: ObservableObject {
                 } catch {
                     print("タクシーデータの更新に失敗： \(error.localizedDescription)")
                 }
+                // 配車後のユーザーの状態に基づいて、カメラの位置を再調整
+                self.changeCameraPosition()
+                
             }
             
         } catch {
@@ -238,6 +241,23 @@ extension MainViewModel {
             rect.origin.y -= paddingHeight / 2
             // 5. 調整済みの矩形（ルート全体と余白を含む領域）に合わせてカメラ位置を設定
             mainCamera = .rect(rect)
+            
+        case .ordered:
+            // 配車タクシー（selectedTaxi）と乗車地（ridePointCoordinates）の両方が存在することを確認
+            guard let selectedTaxi, let ridePointCoordinates else { return }
+            // 1. 乗車地と配車タクシーの現在地の中間地点を計算
+            let minPoint = CLLocationCoordinate2D(
+                latitude: (selectedTaxi.coordinates.latitude + ridePointCoordinates.latitude) / 2,
+                longitude: (selectedTaxi.coordinates.longitude + ridePointCoordinates.longitude) / 2,
+            )
+            // 2. 両地点を画面に収めるのに必要な緯度・経度のスパン（拡大率）を計算
+            let span = MKCoordinateSpan(
+                // 両地点間の距離（差）にマージンを乗じて、両方が表示されるよう調整
+                latitudeDelta: abs(selectedTaxi.coordinates.latitude - ridePointCoordinates.latitude) * Constants.cameraMargin,
+                longitudeDelta: abs(selectedTaxi.coordinates.longitude - ridePointCoordinates.longitude) * Constants.cameraMargin
+            )
+            // 3. 中間地点と計算されたスパンを用いてカメラ位置を設定（タクシーと乗車地を同時に表示）
+            mainCamera = .region(MKCoordinateRegion(center: minPoint, span: span))
             
         default :
             mainCamera = .userLocation(fallback: .automatic)
