@@ -252,6 +252,31 @@ class MainViewModel: ObservableObject {
                 // タクシーの状態（state）を（goingToRidePoint）に更新
                 "state" : TaxiState.goingToRidePoint.rawValue
             ])
+            // 3. 選択したタクシーのドキュメントにリアルタイムリスナーを設定:
+            //    タクシーの位置や状態が変更されるたびに、そのデータをリアルタイムで受け取るためのリスナーを設定する。
+            Firestore.firestore().collection("taxis").document(selectedTaxiId).addSnapshotListener {
+                documentSnapshot, error in
+                
+                if let error {
+                    print("配車するタクシーのリスナーの取得に失敗： \(error.localizedDescription) ")
+                    return
+                }
+                // データのスナップショットが存在しない場合は処理を中断
+                guard let snapshot = documentSnapshot else {
+                    print("配車するタクシーのリスナーにデータなし")
+                    return
+                }
+                
+                do {
+                    // スナップショットから Taxi モデルにデータをデコード
+                    let taxi = try snapshot.data(as: Taxi.self)
+                    // データの受信をデバッグ出力（リアルタイムの動きを確認）
+                    print("DEBUG: 配車するタクシーのデータ \(taxi)")
+                } catch {
+                    print("タクシーデータの更新に失敗： \(error.localizedDescription)")
+                }
+            }
+            
         } catch {
             // データ更新中にエラーが発生した場合、エラーを出力
             print("タクシーのデータ更新に失敗：\(error.localizedDescription)")
