@@ -159,7 +159,7 @@ class MainViewModel: ObservableObject {
         
     }
     /// Firestoreからタクシー車両のデータを非同期で取得する
-    func fetchTaxis() async -> [Taxi]? {
+    private func fetchTaxis() async -> [Taxi]? {
         // Firestoreデータベースのインスタンスを定数として取得
         let firestore = Firestore.firestore()
         
@@ -188,17 +188,14 @@ class MainViewModel: ObservableObject {
             return nil
         }
     }
-    
-    /// 処理内容:
-    /// 1. fetchTaxis() を呼び出し、Firestoreから利用可能な全てのタクシーデータを取得する。
-    /// 2. 乗車地 (`ridePointCoordinates`) から最も直線距離が近いタクシーを、取得した全タクシーデータ (`allTaxis`) の中から特定する。
-    /// 3. （今後実装予定）特定されたタクシーに対して配車リクエストを送信し、ユーザーの状態を更新する。
-    func callATaxi() async {
+    // 最短距離の空車タクシーのIDを返すメソッド
+    private func getSelectedTaxiId() async -> String? {
         // 1. 必要なデータの安全なアンラップ:
-        //    全タクシーデータと乗車地座標が取得できなければ、処理を中断する。
+        //    Firestoreから取得した全タクシーデータ (allTaxis) とユーザーが設定した乗車地座標 (ridePointCoordinates) が
+        //    取得できなければ、処理を中断し nil を返す。
         guard let allTaxis = await fetchTaxis(),
               let ridePointCoordinates
-        else { return }
+        else { return nil }
         
         // 2. 乗車地のCLLocationオブジェクトを生成:
         //    距離計算のために、乗車地の座標をCLLocationオブジェクトに変換する。
@@ -210,9 +207,10 @@ class MainViewModel: ObservableObject {
         // selectedTaxiId: 最短距離のタクシーのIDを保持
         var selectedTaxiId: String?
         
-        // 3. 全タクシーを反復処理し、乗車地からの距離を計算・出力:
+        // 3. 全タクシーを反復処理し、乗車地からの距離を計算・最短を特定する:
         for taxi in allTaxis {
             // guard ステートメントで空車（.empty）でないタクシーをフィルタリング
+            // 空車でない場合、continue が実行され、次のタクシーのチェックにスキップされる。
             guard taxi.state == .empty else { continue }
             
             // 現在のタクシーの位置情報（coordinates）をCLLocationオブジェクトに変換
@@ -229,19 +227,33 @@ class MainViewModel: ObservableObject {
                 selectedTaxiId = taxi.id   // 最も近いタクシーのIDをこのタクシーで更新
             }
         }
-        
+        // DEBUG: 最短タクシーのIDと距離をコンソールに出力
         print("DEBUG:Selected taxi is \(selectedTaxiId ?? "none...") \(minDistance)")
         
-        // 4. 最短タクシーのIDの確認:
-        guard let selectedTaxiId else { return }
+        return selectedTaxiId
+    }
+    
+    //---------------------------------------------------------
+    
+    /// 処理内容:
+    /// 1. getSelectedTaxiId() を呼び出し、最短距離の空車タクシーのIDを取得する。
+    /// 2. 取得したIDに基づき、Firestoreの該当タクシーの状態を「乗車地へ向かう状態」に更新する。
+    func callATaxi() async {
+        
+        // 1. getSelectedTaxiId()を呼び出し、最短タクシーのIDを取得。
+        //    IDが取得できなければ（データ不足など）、処理を中断する。
+        guard let selectedTaxiId = await getSelectedTaxiId() else { return }
+        
         do {
-            // Firestore内の "taxis" コレクションから、特定されたタクシーのドキュメント（ID: selectedTaxiId）を取得し、データを更新する。
+            // 2. Firestoreの該当タクシーの状態を更新:
+            //    Firestore内の "taxis" コレクションから、特定されたタクシーのドキュメントにアクセス。
             try await Firestore.firestore().collection("taxis").document(selectedTaxiId).updateData([
                 // キーにはフィールドの名前、バリューには保存する値
                 // タクシーの状態（state）を（goingToRidePoint）に更新
                 "state" : TaxiState.goingToRidePoint.rawValue
             ])
         } catch {
+            // データ更新中にエラーが発生した場合、エラーを出力
             print("タクシーのデータ更新に失敗：\(error.localizedDescription)")
         }
     }
