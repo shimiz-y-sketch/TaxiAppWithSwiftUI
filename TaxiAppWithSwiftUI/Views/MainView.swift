@@ -114,8 +114,15 @@ extension MainView {
             
             Spacer()
             
-            // Button
-            if mainViewModel.currentUser.state == .confirming {
+            // Button or Status
+            // ユーザーの現在の状態に応じて、ボタン群を表示するか、配車ステータスを表示するかを分岐
+            
+            // 状態が .ordered（配車済み）の場合、進行状況を示す Status View を表示する
+            if mainViewModel.currentUser.state == .ordered {
+                
+                Status()
+                
+            } else if mainViewModel.currentUser.state == .confirming {
                 
                 HStack(spacing: 16) {
                     Button {
@@ -126,6 +133,9 @@ extension MainView {
                     }
                     
                     Button {
+                        // ユーザー状態を .ordered（配車済み）に更新し、UIをステータス表示に切り替える
+                        mainViewModel.currentUser.state = .ordered
+                        
                         Task {
                             await mainViewModel.callATaxi()
                         }

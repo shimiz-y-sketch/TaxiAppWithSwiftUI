@@ -29,6 +29,8 @@ enum UserState {
     case setDestination
     /// ルートを確認し、配車を確定しようとしている状態
     case confirming
+    /// 配車リクエストが完了し、タクシーの到着を待っている状態
+    case ordered
 }
 
 // 開発用モックデータ
