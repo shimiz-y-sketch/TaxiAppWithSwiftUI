@@ -28,9 +28,15 @@ struct MainView: View {
             // Information Area
             information
         }
+        // タクシー到着時に表示されるアラートを定義
         .alert("確認", isPresented: $mainViewModel.showAlert) {
+            // OKボタンが押されたときの処理
             Button("OK") {
-                
+                Task {
+                    // 配車されたタクシーの状態を「目的地へ向かう状態」に更新する
+                    await mainViewModel.updateTaxiState(id: mainViewModel.selectedTaxi?.id, state: .goingToDestination)
+                    
+                }
             }
         } message: {
             Text("タクシーが乗車地に到着しました")

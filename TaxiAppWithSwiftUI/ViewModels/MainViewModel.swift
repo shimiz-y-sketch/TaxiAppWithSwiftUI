@@ -159,64 +159,57 @@ class MainViewModel: ObservableObject {
         // 1. getSelectedTaxiId()を呼び出し、最短タクシーのIDを取得。
         //    IDが取得できなければ（データ不足など）、処理を中断する。
         guard let selectedTaxiId = await getSelectedTaxiId() else { return }
+        // 2. Firestoreの該当タクシーの状態を更新:
+        await updateTaxiState(id: selectedTaxiId, state: .goingToRidePoint)
         
-        do {
-            // 2. Firestoreの該当タクシーの状態を更新:
-            //    Firestore内の "taxis" コレクションから、特定されたタクシーのドキュメントにアクセス。
-            try await Firestore.firestore().collection("taxis").document(selectedTaxiId).updateData([
-                // キーにはフィールドの名前、バリューには保存する値
-                // タクシーの状態（state）を（goingToRidePoint）に更新
-                "state" : TaxiState.goingToRidePoint.rawValue
-            ])
+        taxisListener?.remove()
+        
+        // 3. 選択したタクシーのドキュメントにリアルタイムリスナーを設定:
+        //    タクシーの位置や状態が変更されるたびに、そのデータをリアルタイムで受け取るためのリスナーを設定する。
+        Firestore.firestore().collection("taxis").document(selectedTaxiId).addSnapshotListener {
+            documentSnapshot, error in
             
-            taxisListener?.remove()
-            
-            // 3. 選択したタクシーのドキュメントにリアルタイムリスナーを設定:
-            //    タクシーの位置や状態が変更されるたびに、そのデータをリアルタイムで受け取るためのリスナーを設定する。
-            Firestore.firestore().collection("taxis").document(selectedTaxiId).addSnapshotListener {
-                documentSnapshot, error in
-                
-                if let error {
-                    print("配車するタクシーのリスナーの取得に失敗： \(error.localizedDescription) ")
-                    return
-                }
-                // データのスナップショットが存在しない場合は処理を中断
-                guard let snapshot = documentSnapshot else {
-                    print("配車するタクシーのリスナーにデータなし")
-                    return
-                }
-                
-                do {
-                    // スナップショットから Taxi モデルにデータをデコード
-                    let taxi = try snapshot.data(as: Taxi.self)
-                    // デコードしたリアルタイムデータを @Published プロパティに格納し、UIの更新をトリガーする
-                    self.selectedTaxi = taxi
-                    
-                    // データの受信をデバッグ出力（リアルタイムの動きを確認）
-                    print("DEBUG: 配車するタクシーのデータ \(taxi)")
-                } catch {
-                    print("タクシーデータの更新に失敗： \(error.localizedDescription)")
-                }
-                // 配車後のユーザーの状態に基づいて、カメラの位置を再調整
-                self.changeCameraPosition()
-                // --- タクシー到着検知ロジックを開始 ---
-                // 必要な情報（乗車地座標と配車タクシーデータ）が揃っているか確認。
-                guard let ridePointCoordinates = self.ridePointCoordinates,
-                      let selectedTaxi = self.selectedTaxi else { return }
-                // 現在のタクシーの位置と乗車地までの直線距離（メートル）を計算。
-                let distance = self.calculateDistance(a: ridePointCoordinates, b: selectedTaxi.coordinates)
-                print("DEBUG: Distance is \(distance)")
-                // 距離が許容範囲（Constants.meterOfRange）を下回ったか判定し、到着を検知。
-                if distance < Constants.meterOfRange {
-                    // アラート表示用の状態変数を更新し、UIに到着を通知する
-                    self.showAlert = true
-                    
-                }
+            if let error {
+                print("配車するタクシーのリスナーの取得に失敗： \(error.localizedDescription) ")
+                return
+            }
+            // データのスナップショットが存在しない場合は処理を中断
+            guard let snapshot = documentSnapshot else {
+                print("配車するタクシーのリスナーにデータなし")
+                return
             }
             
-        } catch {
-            // データ更新中にエラーが発生した場合、エラーを出力
-            print("タクシーのデータ更新に失敗：\(error.localizedDescription)")
+            do {
+                // スナップショットから Taxi モデルにデータをデコード
+                let taxi = try snapshot.data(as: Taxi.self)
+                // デコードしたリアルタイムデータを @Published プロパティに格納し、UIの更新をトリガーする
+                self.selectedTaxi = taxi
+                
+                // データの受信をデバッグ出力（リアルタイムの動きを確認）
+                print("DEBUG: 配車するタクシーのデータ \(taxi)")
+            } catch {
+                print("タクシーデータの更新に失敗： \(error.localizedDescription)")
+            }
+            // 配車後のユーザーの状態に基づいて、カメラの位置を再調整
+            self.changeCameraPosition()
+            // --- タクシー到着検知ロジックを開始 ---
+            // 必要な情報（乗車地座標と配車タクシーデータ）が揃っているか確認。
+            guard let ridePointCoordinates = self.ridePointCoordinates,
+                  let selectedTaxi = self.selectedTaxi else { return }
+            // 現在のタクシーの位置と乗車地までの直線距離（メートル）を計算。
+            let distance = self.calculateDistance(a: ridePointCoordinates, b: selectedTaxi.coordinates)
+            print("DEBUG: Distance is \(distance)")
+            // 距離が許容範囲（Constants.meterOfRange）を下回ったか判定し、到着を検知。
+            if distance < Constants.meterOfRange {
+                // アラート表示用の状態変数を更新し、UIに到着を通知する
+                self.showAlert = true
+                // タクシーが乗車地に到着したことをFirestoreに非同期で通知する
+                // これにより、他のユーザーやシステム側がタクシーの状態変化（到着済み）を認識できる
+                Task {
+                    await self.updateTaxiState(id: selectedTaxiId, state: .arrivedAtRidePoint)
+                }
+                
+            }
         }
     }
     
@@ -237,6 +230,27 @@ class MainViewModel: ObservableObject {
         
         // カメラ位置をユーザーの現在地（または自動）にリセット
         changeCameraPosition()
+    }
+    
+    /// 指定されたIDのタクシーの状態（`TaxiState`）をFirestore上で更新する
+    ///
+    /// - Parameters:
+    ///   - id: 更新対象のタクシーのドキュメントID（`String`）
+    ///   - state: 設定したい新しいタクシーの状態（`TaxiState`のrawValue）
+    func updateTaxiState(id: String?, state: TaxiState) async {
+        // idがnil（未設定）の場合は、処理を中断する
+        guard let id else { return }
+        
+        do {
+            // Firestoreの "taxis" コレクション内の、指定されたIDのドキュメントにアクセス
+            try await Firestore.firestore().collection("taxis").document(id).updateData([
+                // キーにはフィールドの名前、バリューには保存する値
+                // "state" フィールドを新しい状態（state.rawValue）で更新
+                "state" : state.rawValue
+            ])
+        } catch {
+            print("タクシーのデータ更新に失敗： \(error.localizedDescription)")
+        }
     }
     
 }

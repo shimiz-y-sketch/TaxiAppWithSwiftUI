@@ -29,10 +29,16 @@ struct Taxi: Identifiable, Decodable  {
 }
 
 enum TaxiState: String, Decodable {
-    // 空車状態
+    /// 空車状態
     case empty
     /// 乗車地へ向かっている状態
     case goingToRidePoint
+    /// 乗車地に到着した状態
+    case arrivedAtRidePoint
+    /// 目的地に向かっている状態
+    case goingToDestination
+    /// 目的地に到着した状態
+    case arrivedAtDestination
 }
 
 
