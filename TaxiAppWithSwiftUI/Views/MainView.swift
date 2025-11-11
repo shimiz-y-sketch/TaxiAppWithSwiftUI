@@ -28,6 +28,14 @@ struct MainView: View {
             // Information Area
             information
         }
+        .alert("確認", isPresented: $mainViewModel.showAlert) {
+            Button("OK") {
+                
+            }
+        } message: {
+            Text("タクシーが乗車地に到着しました")
+        }
+
     }
 }
 

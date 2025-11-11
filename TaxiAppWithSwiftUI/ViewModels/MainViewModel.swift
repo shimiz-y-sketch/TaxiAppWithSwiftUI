@@ -18,6 +18,8 @@ class MainViewModel: ObservableObject {
     @Published var currentUser = User.mock
     
     @Published var showSearchView = false
+    /// タクシーが乗車地に到着したことをユーザーに通知するためのアラートの表示状態
+    @Published var showAlert = false
     
     @Published var ridePointAddress: String?
     var ridePointCoordinates: CLLocationCoordinate2D?
@@ -199,7 +201,8 @@ class MainViewModel: ObservableObject {
                 print("DEBUG: Distance is \(distance)")
                 // 距離が許容範囲（Constants.meterOfRange）を下回ったか判定し、到着を検知。
                 if distance < Constants.meterOfRange {
-                    print("DEBUG: タクシーが乗車地に到着しました")
+                    // アラート表示用の状態変数を更新し、UIに到着を通知する
+                    self.showAlert = true
                     
                 }
             }
