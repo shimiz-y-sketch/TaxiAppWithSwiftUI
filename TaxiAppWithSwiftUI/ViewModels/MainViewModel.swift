@@ -287,7 +287,7 @@ extension MainViewModel {
             print("DEBUG: tempTaxis => \(tempTaxis)")
             // 全てのドキュメントの処理が完了した後、結果の配列を返す
             return tempTaxis
-
+            
             
         } catch {
             print("タクシーのデータの取得に失敗しました：\(error.localizedDescription)")
@@ -304,9 +304,6 @@ extension MainViewModel {
         else { return nil }
         
         // 2. 乗車地のCLLocationオブジェクトを生成:
-        //    距離計算のために、乗車地の座標をCLLocationオブジェクトに変換する。
-        let rideLocation = CLLocation(latitude: ridePointCoordinates.latitude, longitude: ridePointCoordinates.longitude)
-        
         // 最短距離と、そのタクシーのIDを保持するための変数を初期化
         // minDistance: 現在見つかっている最短距離を保持（初期値は無限大）
         var minDistance: CLLocationDistance = .infinity
@@ -319,12 +316,9 @@ extension MainViewModel {
             // 空車でない場合、continue が実行され、次のタクシーのチェックにスキップされる。
             guard taxi.state == .empty else { continue }
             
-            // 現在のタクシーの位置情報（coordinates）をCLLocationオブジェクトに変換
-            let taxiLocation = CLLocation(latitude: taxi.coordinates.latitude, longitude: taxi.coordinates.longitude)
-            
             // rideLocation（乗車地）から taxiLocation（タクシー位置）までの
             // 直線距離（メートル単位）を計算
-            let distance = rideLocation.distance(from: taxiLocation)
+            let distance = calculateDistance(a: ridePointCoordinates, b: taxi.coordinates)
             
             // 距離の比較と最短タクシーの更新
             if distance < minDistance {
@@ -337,5 +331,19 @@ extension MainViewModel {
         print("DEBUG:Selected taxi is \(selectedTaxiId ?? "none...") \(minDistance)")
         
         return selectedTaxiId
+    }
+    /// 2点間の直線距離（メートル）を計算するヘルパーメソッド
+    /// - Parameters:
+    ///   - a: 1点目の座標 (`CLLocationCoordinate2D`)
+    ///   - b: 2点目の座標 (`CLLocationCoordinate2D`)
+    /// - Returns: 2点間の距離 (`CLLocationDistance`、メートル単位)
+    private func calculateDistance(a: CLLocationCoordinate2D, b: CLLocationCoordinate2D) -> CLLocationDistance {
+        
+        // CLLocationCoordinate2DをCLLocationオブジェクトに変換
+        let locationA = CLLocation(latitude: a.latitude, longitude: a.longitude)
+        let locationB = CLLocation(latitude: b.latitude, longitude: b.longitude)
+        
+        // CLLocationが持つdistance(from:)メソッドで距離を計算
+        return locationA.distance(from: locationB)
     }
 }
