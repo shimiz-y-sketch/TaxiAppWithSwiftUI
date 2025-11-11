@@ -190,7 +190,18 @@ class MainViewModel: ObservableObject {
                 }
                 // 配車後のユーザーの状態に基づいて、カメラの位置を再調整
                 self.changeCameraPosition()
-                
+                // --- タクシー到着検知ロジックを開始 ---
+                // 必要な情報（乗車地座標と配車タクシーデータ）が揃っているか確認。
+                guard let ridePointCoordinates = self.ridePointCoordinates,
+                      let selectedTaxi = self.selectedTaxi else { return }
+                // 現在のタクシーの位置と乗車地までの直線距離（メートル）を計算。
+                let distance = self.calculateDistance(a: ridePointCoordinates, b: selectedTaxi.coordinates)
+                print("DEBUG: Distance is \(distance)")
+                // 距離が許容範囲（Constants.meterOfRange）を下回ったか判定し、到着を検知。
+                if distance < Constants.meterOfRange {
+                    print("DEBUG: タクシーが乗車地に到着しました")
+                    
+                }
             }
             
         } catch {

@@ -24,5 +24,7 @@ struct Constants {
     static let pinHeight: CGFloat = 40
     /// 配車時（.ordered状態）に、タクシーと乗車地の両方を画面に収めるためのスパンの調整マージン
     static let cameraMargin: CGFloat = 1.25
+    /// タクシーが乗車地に「到着した」と判定する範囲（メートル単位）
+    static let meterOfRange: Double = 10.0
     
 }
