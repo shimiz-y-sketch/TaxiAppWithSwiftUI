@@ -65,7 +65,7 @@ struct Status: View {
         .foregroundStyle(.main) // すべての要素にアプリのメインカラーを適用
         
         // Message text (現在の状態に対応するメッセージを表示する部分)
-        Text("タクシーを手配しています") // このテキストは状態に応じて動的に変更する必要がある
+        Text(state.message) // このテキストは状態に応じて動的に変更する必要がある
             .font(.headline)
             .padding(.top, 10) // ステータスバーとメッセージの間隔
         

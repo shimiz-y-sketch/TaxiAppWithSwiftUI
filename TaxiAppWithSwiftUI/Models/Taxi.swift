@@ -28,6 +28,8 @@ struct Taxi: Identifiable, Decodable  {
     }
 }
 
+/// タクシーの現在の配車ステータスを定義する列挙型。
+/// ユーザーインターフェースの表示や、バックエンドとのデータ同期に使用
 enum TaxiState: String, Decodable {
     /// 空車状態
     case empty
@@ -39,6 +41,17 @@ enum TaxiState: String, Decodable {
     case goingToDestination
     /// 目的地に到着した状態
     case arrivedAtDestination
+    
+    /// 各状態に対応する、ユーザーインターフェースに表示するためのメッセージを返す
+    var message: String {
+        switch self {
+        case .empty: return "タクシーを手配しています"
+        case .goingToRidePoint: return "タクシーの到着をお待ちください"
+        case .arrivedAtRidePoint: return "タクシーが乗車地に到着しました"
+        case .goingToDestination: return "目的地に向かっています"
+        case .arrivedAtDestination: return "目的地に到着しました"
+        }
+    }
 }
 
 
