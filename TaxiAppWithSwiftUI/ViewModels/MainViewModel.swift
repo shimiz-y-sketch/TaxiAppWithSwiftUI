@@ -251,7 +251,7 @@ class MainViewModel: ObservableObject {
         guard let id else { return }
         
         //デバッグ用
-        // タクシーの状態が変更された際、その新しい状態に応じてタクシーの移動シミュレーションを開始する
+        
         Task {
             await Debug.moveTaxi(id: id, state: state)
         }

@@ -136,6 +136,7 @@ extension MainView {
                 }
             }
         }
+        .animation(.default, value: mainViewModel.mainCamera)
     }
     
     private var information: some View {
