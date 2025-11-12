@@ -77,17 +77,17 @@ struct Debug {
     ]
     
     /// 目的地へ向かう経路（10点）
-    // 乗車地 (34.703301, 135.504417) から 目的地 (34.7040386, 135.5064618) までの10点
+    // 乗車地 (34.703301, 135.504417) から 目的地 (34.7037, 135.509) までの10点
     static let toDestination: [GeoPoint] = [
-        GeoPoint(latitude: 34.703374, longitude: 135.504622), // 1/10
-        GeoPoint(latitude: 34.703447, longitude: 135.504828), // 2/10
-        GeoPoint(latitude: 34.703521, longitude: 135.505033), // 3/10
-        GeoPoint(latitude: 34.703594, longitude: 135.505238), // 4/10
-        GeoPoint(latitude: 34.703667, longitude: 135.505444), // 5/10
-        GeoPoint(latitude: 34.703741, longitude: 135.505649), // 6/10
-        GeoPoint(latitude: 34.703814, longitude: 135.505855), // 7/10
-        GeoPoint(latitude: 34.703887, longitude: 135.506060), // 8/10
-        GeoPoint(latitude: 34.703961, longitude: 135.506266), // 9/10
-        GeoPoint(latitude: 34.704038, longitude: 135.506461)  // 10/10 (目的地: 34.7040386, 135.5064618)
+        GeoPoint(latitude: 34.703340, longitude: 135.504875), // 1/10
+        GeoPoint(latitude: 34.703379, longitude: 135.505333), // 2/10
+        GeoPoint(latitude: 34.703419, longitude: 135.505791), // 3/10
+        GeoPoint(latitude: 34.703458, longitude: 135.506249), // 4/10
+        GeoPoint(latitude: 34.703497, longitude: 135.506707), // 5/10
+        GeoPoint(latitude: 34.703536, longitude: 135.507165), // 6/10
+        GeoPoint(latitude: 34.703575, longitude: 135.507623), // 7/10
+        GeoPoint(latitude: 34.703615, longitude: 135.508081), // 8/10
+        GeoPoint(latitude: 34.703654, longitude: 135.508539), // 9/10
+        GeoPoint(latitude: 34.703700, longitude: 135.509000)  // 10/10 (目的地: 34.7037, 135.509)
     ]
 }
