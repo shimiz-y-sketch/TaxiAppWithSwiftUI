@@ -42,7 +42,7 @@ class MainViewModel: ObservableObject {
     init() {
         // デバッグ用（タクシー位置・状態の初期化）
         Task {
-            await setTaxi()
+            await Debug.setTaxi()
         }
     }
     
@@ -394,20 +394,4 @@ extension MainViewModel {
         // CLLocationが持つdistance(from:)メソッドで距離を計算
         return locationA.distance(from: locationB)
     }
-    
-    /// デバッグ用：Firestore上の特定のタクシー（ID: Shpqkh5tV9pW8wQ3aavd）のデータと位置を初期状態（空車）に戻す
-        private func setTaxi() async {
-            do {
-                // Firestoreの "taxis" コレクション内の特定のドキュメントを更新
-                try await Firestore.firestore().collection("taxis").document("Shpqkh5tV9pW8wQ3aavd").updateData([
-                    // 状態を「空車 (.empty)」にリセット
-                    "state": TaxiState.empty.rawValue,
-                    // 初期座標にリセット
-                    "geoPoint": GeoPoint(latitude: 34.703381, longitude: 135.504917)
-                ])
-                print("DEBUG: ドキュメントを初期化")
-            } catch {
-                print("DEBUG: ドキュメントの初期化に失敗： \(error.localizedDescription)")
-            }
-        }
 }
