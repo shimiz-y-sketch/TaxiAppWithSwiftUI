@@ -175,9 +175,11 @@ extension MainView {
             
             // 状態が .ordered（配車済み）の場合、進行状況を示す Status View を表示する
             if mainViewModel.currentUser.state == .ordered {
-                
-                Status()
-                
+                if let state = mainViewModel.selectedTaxi?.state {
+                    // タクシーの現在（移動）状態を表示
+                    Status(state: state)
+                    
+                }
             } else if mainViewModel.currentUser.state == .confirming {
                 
                 HStack(spacing: 16) {
