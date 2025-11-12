@@ -185,30 +185,39 @@ class MainViewModel: ObservableObject {
                 // デコードしたリアルタイムデータを @Published プロパティに格納し、UIの更新をトリガーする
                 self.selectedTaxi = taxi
                 
+                // 配車後のユーザーの状態に基づいて、カメラの位置を再調整
+                self.changeCameraPosition()
+                
+                // --- タクシー到着検知ロジックを開始 ---
+                // 必要な情報（乗車地座標と配車タクシーデータ）が揃っているか確認。
+                guard let ridePointCoordinates = self.ridePointCoordinates,
+                      let selectedTaxi = self.selectedTaxi else { return }
+                // 現在のタクシーの状態に応じて処理を分岐
+                switch taxi.state {
+                    // タクシーがまだ乗車地へ向かっている状態の場合のみ、到着判定を実行する
+                case .goingToRidePoint:
+                    // 現在のタクシーの位置と乗車地までの直線距離（メートル）を計算。
+                    let distance = self.calculateDistance(a: ridePointCoordinates, b: selectedTaxi.coordinates)
+                    print("DEBUG: Distance is \(distance)")
+                    // 距離が許容範囲（Constants.meterOfRange）を下回ったか判定し、到着を検知。
+                    if distance < Constants.meterOfRange {
+                        // アラート表示用の状態変数を更新し、UIに到着を通知する
+                        self.showAlert = true
+                        // タクシーが乗車地に到着したことをFirestoreに非同期で通知する
+                        // これにより、他のユーザーやシステム側がタクシーの状態変化（到着済み）を認識できる
+                        Task {
+                            await self.updateTaxiState(id: selectedTaxiId, state: .arrivedAtRidePoint)
+                        }
+                    }
+                // 上記のケース以外は何もしない
+                default:
+                    break
+                }
+                
                 // データの受信をデバッグ出力（リアルタイムの動きを確認）
                 print("DEBUG: 配車するタクシーのデータ \(taxi)")
             } catch {
                 print("タクシーデータの更新に失敗： \(error.localizedDescription)")
-            }
-            // 配車後のユーザーの状態に基づいて、カメラの位置を再調整
-            self.changeCameraPosition()
-            // --- タクシー到着検知ロジックを開始 ---
-            // 必要な情報（乗車地座標と配車タクシーデータ）が揃っているか確認。
-            guard let ridePointCoordinates = self.ridePointCoordinates,
-                  let selectedTaxi = self.selectedTaxi else { return }
-            // 現在のタクシーの位置と乗車地までの直線距離（メートル）を計算。
-            let distance = self.calculateDistance(a: ridePointCoordinates, b: selectedTaxi.coordinates)
-            print("DEBUG: Distance is \(distance)")
-            // 距離が許容範囲（Constants.meterOfRange）を下回ったか判定し、到着を検知。
-            if distance < Constants.meterOfRange {
-                // アラート表示用の状態変数を更新し、UIに到着を通知する
-                self.showAlert = true
-                // タクシーが乗車地に到着したことをFirestoreに非同期で通知する
-                // これにより、他のユーザーやシステム側がタクシーの状態変化（到着済み）を認識できる
-                Task {
-                    await self.updateTaxiState(id: selectedTaxiId, state: .arrivedAtRidePoint)
-                }
-                
             }
         }
     }
