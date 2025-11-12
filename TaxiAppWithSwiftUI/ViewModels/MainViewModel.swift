@@ -286,26 +286,25 @@ extension MainViewModel {
             // 5. 調整済みの矩形（ルート全体と余白を含む領域）に合わせてカメラ位置を設定
             mainCamera = .rect(rect)
             
+            // ユーザーが配車済み状態の場合、タクシーの現在の状態に基づいてカメラ位置を制御する
         case .ordered:
             
-            if let taxi = selectedTaxi,
-               let ridePoint = ridePointCoordinates,
-               taxi.state == .goingToRidePoint {
+            // 追跡対象のタクシーデータが存在するか確認
+            guard let taxi = selectedTaxi else { return }
+            // タクシーの状態が「乗車地へ向かっている」場合
+            if taxi.state == .goingToRidePoint {
+                // 乗車地座標が存在するか確認
+                guard let ridePointCoordinates else { return }
+                // タクシーと乗車地の両方を画面に収めるようカメラ位置を設定
+                // CLLocationCoordinate2Dの拡張メソッドを使用し、最適な表示領域を計算する
+                mainCamera = .region(ridePointCoordinates.getRegionTo(taxi.coordinates))
                 
-                // 1. 乗車地と配車タクシーの現在地の中間地点を計算
-                let minPoint = CLLocationCoordinate2D(
-                    latitude: (taxi.coordinates.latitude + ridePoint.latitude) / 2,
-                    longitude: (taxi.coordinates.longitude + ridePoint.longitude) / 2,
-                )
-                // 2. 両地点を画面に収めるのに必要な緯度・経度のスパン（拡大率）を計算
-                let span = MKCoordinateSpan(
-                    // 両地点間の距離（差）にマージンを乗じて、両方が表示されるよう調整
-                    latitudeDelta: abs(taxi.coordinates.latitude - ridePoint.latitude) * Constants.cameraMargin,
-                    longitudeDelta: abs(taxi.coordinates.longitude - ridePoint.longitude) * Constants.cameraMargin
-                )
-                // 3. 中間地点と計算されたスパンを用いてカメラ位置を設定（タクシーと乗車地を同時に表示）
-                mainCamera = .region(MKCoordinateRegion(center: minPoint, span: span))
-                
+                // タクシーの状態が「目的地へ向かっている」場合（乗車完了後）
+            } else if taxi.state == .goingToDestination {
+                // 目的地座標が存在するか確認
+                guard let destinationCoordinates else { return }
+                // タクシーと目的地の両方を画面に収めるようカメラ位置を設定
+                mainCamera = .region(destinationCoordinates.getRegionTo(taxi.coordinates))
             }
             
         default :
