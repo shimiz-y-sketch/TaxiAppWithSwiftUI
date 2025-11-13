@@ -19,7 +19,9 @@ class MainViewModel: ObservableObject {
     
     @Published var showSearchView = false
     /// タクシーが乗車地に到着したことをユーザーに通知するためのアラートの表示状態
-    @Published var showAlert = false
+    @Published var showAlertAtRidePoint = false
+    /// タクシーが目的地に到着したことをユーザーに通知するためのアラートの表示状態
+    @Published var showAlertAtDestination = false
     
     @Published var ridePointAddress: String?
     var ridePointCoordinates: CLLocationCoordinate2D?
@@ -38,6 +40,9 @@ class MainViewModel: ObservableObject {
     ///  配車が確定し、ユーザーが現在乗車を待っているタクシーのデータ。
     /// このデータは、マップ上でのタクシーの移動や状態表示に使用される。
     @Published var selectedTaxi: Taxi?
+    /// **配車が確定した単一のタクシー**のドキュメントのリアルタイムリスナーを保持するためのプロパティ
+    /// タクシーの位置や状態のリアルタイム追跡に使用する
+    var selectedTaxiListener: ListenerRegistration?
     
     init() {
         // デバッグ用（タクシー位置・状態の初期化）
@@ -84,10 +89,13 @@ class MainViewModel: ObservableObject {
     }
     
     /// Firestoreの "taxis" コレクションのリアルタイムな変更を監視するためのリスナーを設定する
-    func startTaxisListening() {
+    func listeningForAllTaxis() {
         
         // Firestoreデータベースのインスタンスを定数として取得
         let firestore = Firestore.firestore()
+        
+        // 配列にデータが重複して追加されるのを防ぐため、既存のローカルデータをクリア
+        taxis.removeAll()
         
         // firestore.collection("taxis") に対してスナップショットリスナーを設定
         // これにより、データベースのデータが変更されるたびに、
@@ -165,8 +173,8 @@ class MainViewModel: ObservableObject {
         taxisListener?.remove()
         
         // 3. 選択したタクシーのドキュメントにリアルタイムリスナーを設定:
-        //    タクシーの位置や状態が変更されるたびに、そのデータをリアルタイムで受け取るためのリスナーを設定する。
-        Firestore.firestore().collection("taxis").document(selectedTaxiId).addSnapshotListener {
+        //    タクシーの位置や状態が変更されるたびに、そのデータをリアルタイムで受け取るためのリスナーを設定する
+        selectedTaxiListener = Firestore.firestore().collection("taxis").document(selectedTaxiId).addSnapshotListener {
             documentSnapshot, error in
             
             if let error {
@@ -189,27 +197,37 @@ class MainViewModel: ObservableObject {
                 self.changeCameraPosition()
                 
                 // --- タクシー到着検知ロジックを開始 ---
-                // 必要な情報（乗車地座標と配車タクシーデータ）が揃っているか確認。
-                guard let ridePointCoordinates = self.ridePointCoordinates,
-                      let selectedTaxi = self.selectedTaxi else { return }
                 // 現在のタクシーの状態に応じて処理を分岐
                 switch taxi.state {
                     // タクシーがまだ乗車地へ向かっている状態の場合のみ、到着判定を実行する
                 case .goingToRidePoint:
+                    guard let ridePoint = self.ridePointCoordinates else { return }
                     // 現在のタクシーの位置と乗車地までの直線距離（メートル）を計算。
-                    let distance = self.calculateDistance(a: ridePointCoordinates, b: selectedTaxi.coordinates)
+                    let distance = self.calculateDistance(a: ridePoint, b: taxi.coordinates)
                     print("DEBUG: Distance is \(distance)")
                     // 距離が許容範囲（Constants.meterOfRange）を下回ったか判定し、到着を検知。
                     if distance < Constants.meterOfRange {
-                        // アラート表示用の状態変数を更新し、UIに到着を通知する
-                        self.showAlert = true
                         // タクシーが乗車地に到着したことをFirestoreに非同期で通知する
-                        // これにより、他のユーザーやシステム側がタクシーの状態変化（到着済み）を認識できる
                         Task {
                             await self.updateTaxiState(id: selectedTaxiId, state: .arrivedAtRidePoint)
+                            // アラート表示用の状態変数を更新し、UIに到着を通知する
+                            self.showAlertAtRidePoint = true
                         }
                     }
-                // 上記のケース以外は何もしない
+                // TODO
+                case .goingToDestination:
+                    guard let destination = self.destinationCoordinates else { return }
+                    let distance = self.calculateDistance(a: destination, b: taxi.coordinates)
+                    if distance < Constants.meterOfRange {
+                        
+                        Task {
+                            await self.updateTaxiState(id: selectedTaxiId, state: .arrivedAtDestination)
+                            // アラート表示用の状態変数を更新し、UIに到着を通知する
+                            self.showAlertAtDestination = true
+                        }
+                        
+                    }
+                    // 上記のケース以外は何もしない
                 default:
                     break
                 }
@@ -223,22 +241,34 @@ class MainViewModel: ObservableObject {
     }
     
     func reset() {
-        // ユーザーの状態を「乗車地設定中」に戻す
+        // --- ユーザー状態とUI関連のリセット ---
+        // ユーザーの状態を「乗車地設定中」に戻す（アプリの初期操作状態）
         currentUser.state = .setRidePoint
         
-        // 乗車地関連の情報をリセット
-        ridePointAddress = nil       // 乗車地住所をクリア
-        ridePointCoordinates = nil  // 乗車地座標をクリア
+        // --- データ関連のリセット ---
         
+        // 乗車地関連の情報をリセット
+        ridePointAddress = nil      // 乗車地住所をクリア
+        ridePointCoordinates = nil  // 乗車地座標をクリア
+
         // 目的地関連の情報をリセット
-        destinationAddress = nil     // 目的地住所をクリア
+        destinationAddress = nil    // 目的地住所をクリア
         destinationCoordinates = nil// 目的地座標をクリア
         
         // ルート情報をクリア
         route = nil                 // 経路情報をクリア
         
+        // 配車確定後のタクシー情報をクリア
+        selectedTaxi = nil          // 配車が確定したタクシー情報をクリア
+        // 追跡中の単一タクシーに対するリアルタイムリスナーを停止
+        selectedTaxiListener?.remove()
+        
+        // --- マップ操作関連のリセット ---
         // カメラ位置をユーザーの現在地（または自動）にリセット
         changeCameraPosition()
+        
+        // 再度、全空車タクシーのリアルタイム監視を開始
+        listeningForAllTaxis()
     }
     
     /// 指定されたIDのタクシーの状態（`TaxiState`）をFirestore上で更新する

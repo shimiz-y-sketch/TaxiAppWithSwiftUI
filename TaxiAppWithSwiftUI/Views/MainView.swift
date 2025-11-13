@@ -29,7 +29,7 @@ struct MainView: View {
             information
         }
         // タクシー到着時に表示されるアラートを定義
-        .alert("確認", isPresented: $mainViewModel.showAlert) {
+        .alert("確認", isPresented: $mainViewModel.showAlertAtRidePoint) {
             // OKボタンが押されたときの処理
             Button("OK") {
                 Task {
@@ -40,6 +40,16 @@ struct MainView: View {
             }
         } message: {
             Text("タクシーが乗車地に到着しました")
+        }
+        .alert("確認", isPresented: $mainViewModel.showAlertAtDestination) {
+            Button("OK") {
+                Task {
+                    await mainViewModel.updateTaxiState(id: mainViewModel.selectedTaxi?.id, state: .empty)
+                mainViewModel.reset()
+                }
+            }
+        } message: {
+            Text("タクシーが目的地に到着しました")
         }
 
     }
@@ -126,7 +136,7 @@ extension MainView {
         
         .onAppear {
             CLLocationManager().requestWhenInUseAuthorization()
-            mainViewModel.startTaxisListening()
+            mainViewModel.listeningForAllTaxis()
         }
         .onMapCameraChange(frequency: .onEnd) { context in
             if mainViewModel.currentUser.state == .setRidePoint {
